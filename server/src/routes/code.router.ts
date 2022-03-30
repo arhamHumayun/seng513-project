@@ -9,7 +9,7 @@ codeRouter.use(express.json());
 
 codeRouter.get("/", async (_req: Request, res: Response) => {
    try {
-      const code = (await collections.code!.find({}).toArray()) as unknown as Code[];
+      const code = (await collections.code?.find({}).toArray()) as unknown as Code[];
       res.status(200).send(code);
    } catch (e: unknown) {
       if (e instanceof Error) {
@@ -23,7 +23,7 @@ codeRouter.get("/:id", async (req: Request, res: Response) => {
 
    try {
       const query = { _id: new ObjectId(id) };
-      const code = (await collections.code!.findOne(query)) as unknown as Code;
+      const code = (await collections.code?.findOne(query)) as unknown as Code;
 
       if (code) {
          res.status(200).send(code);
@@ -36,7 +36,7 @@ codeRouter.get("/:id", async (req: Request, res: Response) => {
 codeRouter.post("/",async (req:Request, res: Response) => {
    try {
       const newCode = req.body as Code;
-      const result = await collections.code!.insertOne(newCode);
+      const result = await collections.code?.insertOne(newCode);
 
       result
          ? res.status(201).send(`Successfully created a new code document with id ${result.insertedId}`)

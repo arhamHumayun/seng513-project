@@ -9,7 +9,7 @@ userRouter.use(express.json());
 
 userRouter.get("/", async (_req: Request, res: Response) => {
    try {
-      const users = (await collections.users!.find({}).toArray()) as unknown as User[];
+      const users = (await collections.users?.find({}).toArray()) as unknown as User[];
       res.status(200).send(users);
    } catch (e: unknown) {
       if (e instanceof Error) {
@@ -23,7 +23,7 @@ userRouter.get("/:id", async (req: Request, res: Response) => {
 
    try {
       const query = { _id: new ObjectId(id) };
-      const user = (await collections.users!.findOne(query)) as unknown as User;
+      const user = (await collections.users?.findOne(query)) as unknown as User;
 
       if (user) {
          res.status(200).send(user);
