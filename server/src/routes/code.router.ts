@@ -18,7 +18,7 @@ codeRouter.get("/", async (_req: Request, res: Response) => {
    }
 });
 
-codeRouter.get("/:id", async (req: Request, res: Response) => {
+codeRouter.get("/id/:id", async (req: Request, res: Response) => {
    const id = req?.params?.id;
 
    try {
@@ -30,6 +30,17 @@ codeRouter.get("/:id", async (req: Request, res: Response) => {
       }
    } catch (e) {
       res.status(404).send(`Unable to find matching document with id: ${req.params.id}`);
+   }
+});
+
+codeRouter.get("/random/", async (req: Request, res: Response) => {
+   try {
+      const code = (await collections.code?.find({}).toArray()) as unknown as Code[];
+      res.status(200).send(code[Math.floor(Math.random()*code.length)]);
+   } catch (e: unknown) {
+      if (e instanceof Error) {
+         res.status(500).send(e.message);
+      }
    }
 });
 
