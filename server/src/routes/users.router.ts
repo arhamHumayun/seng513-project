@@ -22,13 +22,13 @@ userRouter.get("/:id", async (req: Request, res: Response) => {
    const id = req?.params?.id;
 
    try {
-       const query = { _id: new ObjectId(id) };
-       const user = (await collections.users!.findOne(query)) as unknown as User;
+      const query = { _id: new ObjectId(id) };
+      const user = (await collections.users!.findOne(query)) as unknown as User;
 
-       if (user) {
-           res.status(200).send(user);
-       }
+      if (user) {
+         res.status(200).send(user);
+      }
    } catch (error) {
-       res.status(404).send(`Unable to find matching document with id: ${req.params.id}`);
+      res.status(404).send(`Unable to find matching document with id: ${req.params.id}`);
    }
 });
