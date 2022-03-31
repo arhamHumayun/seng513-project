@@ -2,7 +2,9 @@ import express, { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import { collections } from "../services/database.service.js";
 import User from "../models/user";
+import bcrypt from 'bcrypt';
 
+const saltOrRounds = 10;
 export const userRouter = express.Router();
 
 userRouter.use(express.json());
@@ -18,7 +20,7 @@ userRouter.get("/", async (_req: Request, res: Response) => {
    }
 });
 
-userRouter.get("/:id", async (req: Request, res: Response) => {
+userRouter.get("/id/:id", async (req: Request, res: Response) => {
    const id = req?.params?.id;
 
    try {
@@ -32,3 +34,30 @@ userRouter.get("/:id", async (req: Request, res: Response) => {
       res.status(404).send(`Unable to find matching document with id: ${req.params.id}`);
    }
 });
+
+userRouter.post("/",async (req:Request, res: Response) => {
+   try {
+      const newUser = req.body as User;
+      bcrypt.hash(newUser.password, saltOrRounds, (error: Error | undefined, encrypted: string) => {
+         if (error) {
+            res.status(500).send("Failed to encrypt password.");
+         } else {
+            newUser.password = encrypted
+            submitUser(newUser, res);
+         }
+      })
+   } catch (e: unknown) {
+      console.error(e);
+      if (e instanceof Error) {
+         res.status(400).send(e.message);
+      }
+   }
+
+})
+
+async function submitUser(user: User, res: Response) {
+   const result = await collections.users?.insertOne(user);
+   result
+      ? res.status(201).send(`Successfully created a new user with id ${result.insertedId}`)
+      : res.status(500).send("Failed to create a new user.");
+}
