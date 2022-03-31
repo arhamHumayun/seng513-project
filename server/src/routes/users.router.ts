@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { ObjectId } from "mongodb";
-import { collections } from "../services/database.service.js";
+import { collections } from "../services/database.service";
 import User from "../models/user";
 import bcrypt from 'bcrypt';
 
