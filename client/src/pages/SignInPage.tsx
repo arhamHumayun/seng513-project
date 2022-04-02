@@ -7,11 +7,17 @@ const root = {
   height: '100vh',
 }
 
+const center = {
+  position: 'absolute' as 'absolute',
+  left: '50%',
+  top: '50%',
+  transform: 'translate(-50%, -50%)'
+};
+
 const signIn = {
   marginLeft: 'auto',
   marginRight: 'auto',
-  padding : '4vh',
-  marginTop : '15vh',
+  padding : '10vmin',
 
   border : '2px',
   borderStyle : 'solid',
@@ -22,7 +28,7 @@ function SignIn() {
   return (
     <div style={root}>
       <NavBar/> 
-      <Container>
+      <Container style={center}>
         <div style={signIn}>
           <Form>
             <Form.Group className="mb-3">
