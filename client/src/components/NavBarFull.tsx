@@ -11,7 +11,7 @@ const navItem = {
   fontSize : '24px'
 }
 
-export default function NavBar() {
+function NavBarFull() {
   return (
     <Navbar bg="dark" variant="dark">
       <Container>
@@ -25,3 +25,5 @@ export default function NavBar() {
     </Navbar>
   );
 }
+
+export default NavBarFull;

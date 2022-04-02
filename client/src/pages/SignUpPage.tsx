@@ -17,7 +17,7 @@ const signIn = {
   borderColor : 'black',
 };
 
-export default function SignIn2() {
+function SignUp() {
   return (
     <div style={root}>
       <NavBar/> 
@@ -38,7 +38,7 @@ export default function SignIn2() {
             <Form.Group className="mb-3">
               <Button variant="outline-dark" type="submit">Sign Up</Button>
               <Form.Text className="text-muted">Already have an account?</Form.Text>
-              <Button variant="link" > Sign In</Button>
+              <Button variant="link" href="/signin"> Sign In</Button>
             </Form.Group>
           </Form>
         </div>
@@ -46,3 +46,5 @@ export default function SignIn2() {
     </div>  
   );
 }
+
+export default SignUp;
