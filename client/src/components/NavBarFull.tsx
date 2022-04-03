@@ -1,7 +1,8 @@
 import React from "react";
-import Navbar from 'react-bootstrap/Navbar';
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
+import keyboard from './../assets/keyboard.png';
+import user from './../assets/user.png';
+import home from './../assets/home.png';
+import { Navbar, Container, Nav } from 'react-bootstrap';
 
 const appName = {
   fontSize : '36px'
@@ -11,15 +12,27 @@ const navItem = {
   fontSize : '24px'
 }
 
+const navIcon = {
+  height : '40px',
+}
+
 function NavBarFull() {
   return (
     <Navbar bg="dark" variant="dark">
-      <Container>
-        <Navbar.Brand style={appName} href="#home">&gt;_ SpeedCode</Navbar.Brand>
+      <Container fluid>
+        <Navbar.Brand style={appName} href="/">&gt;_ SpeedCode</Navbar.Brand>
         <Navbar.Toggle />
         <Nav className="justify-content-end">
-          <Nav.Link style={navItem} href="#">Sign In</Nav.Link>
-          <Nav.Link style={navItem} href="#">Sign Up</Nav.Link>
+          <Navbar.Brand href="/">
+            <img src={home} style={navIcon} />
+          </Navbar.Brand>
+          <Navbar.Brand href="/newgame">
+            <img src={keyboard} style={navIcon}/>
+          </Navbar.Brand>
+          <Navbar.Brand href="/profile">
+            <img src={user} style={navIcon}/>
+          </Navbar.Brand>
+          <Nav.Link style={navItem} href="/signin">Sign Out</Nav.Link>
         </Nav>
       </Container>
     </Navbar>

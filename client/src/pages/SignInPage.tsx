@@ -3,10 +3,6 @@ import { useState } from 'react';
 import NavBar from '../components/NavBarPartial';
 import { Form, Button, Container } from "react-bootstrap";
 
-const root = {
-  height: '100vh',
-}
-
 const center = {
   position: 'absolute' as 'absolute',
   left: '50%',
@@ -14,22 +10,20 @@ const center = {
   transform: 'translate(-50%, -50%)'
 };
 
-const signIn = {
-  marginLeft: 'auto',
-  marginRight: 'auto',
-  padding : '10vmin',
-
+const border = {
+  padding : '10vmax',
   border : '2px',
   borderStyle : 'solid',
   borderColor : 'black',
+  borderRadius : '10px'
 };
 
 function SignIn() {
   return (
-    <div style={root}>
+    <div>
       <NavBar/> 
       <Container style={center}>
-        <div style={signIn}>
+        <div style={border}>
           <Form>
             <Form.Group className="mb-3">
               <Form.Label className="display-5">Sign In</Form.Label>
@@ -41,7 +35,7 @@ function SignIn() {
               <Form.Control type="password" placeholder="Password" />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Button variant="outline-dark" type="submit">Sign In</Button>
+              <Button variant="outline-dark" type="submit" href="/newgame">Sign In</Button>
               <Form.Text className="text-muted">Don't have an account?</Form.Text>
               <Button variant="link" href="/signup"> Sign Up</Button>
             </Form.Group>
