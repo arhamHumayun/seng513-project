@@ -33,7 +33,7 @@ codeRouter.get("/id/:id", async (req: Request, res: Response) => {
    }
 });
 
-codeRouter.get("/random/", async (req: Request, res: Response) => {
+codeRouter.get("/random", async (req: Request, res: Response) => {
    try {
       const code = (await collections.code?.find({}).toArray()) as unknown as Code[];
       res.status(200).send(code[Math.floor(Math.random()*code.length)]);

@@ -4,7 +4,7 @@ import { collections } from "../services/database.service";
 import User from "../models/user";
 import bcrypt from 'bcrypt';
 
-const saltOrRounds = 10;
+const saltOrRounds = 8;
 export const userRouter = express.Router();
 
 userRouter.use(express.json());
@@ -35,17 +35,15 @@ userRouter.get("/id/:id", async (req: Request, res: Response) => {
    }
 });
 
-userRouter.post("/",async (req:Request, res: Response) => {
+userRouter.post("/signup", async (req:Request, res: Response) => {
    try {
       const newUser = req.body as User;
-      bcrypt.hash(newUser.password, saltOrRounds, (error: Error | undefined, encrypted: string) => {
-         if (error) {
-            res.status(500).send("Failed to encrypt password.");
-         } else {
-            newUser.password = encrypted
-            submitUser(newUser, res);
-         }
-      })
+      newUser.password = bcrypt.hashSync(newUser.password, saltOrRounds)
+      const result = await collections.users?.insertOne(newUser);
+
+      result
+         ? res.status(201).send(`${result.insertedId}`)
+         : res.status(500).send("Failed to create a new code document.");
    } catch (e: unknown) {
       console.error(e);
       if (e instanceof Error) {
@@ -55,9 +53,31 @@ userRouter.post("/",async (req:Request, res: Response) => {
 
 })
 
-async function submitUser(user: User, res: Response) {
-   const result = await collections.users?.insertOne(user);
-   result
-      ? res.status(201).send(`Successfully created a new user with id ${result.insertedId}`)
-      : res.status(500).send("Failed to create a new user.");
-}
+userRouter.post("/login", async (req:Request, res: Response) => {
+   try {
+      const newUser = req.body as User;
+      const query = {
+         name: newUser.name,
+      };
+      const loggedInUser = (await collections.users?.findOne(query)) as unknown as User;
+      if (!loggedInUser) {
+         res.status(400).send("User not found.");
+         return;
+      }
+      const passwordIsValid = bcrypt.compareSync(
+         newUser.password,
+         loggedInUser.password
+      );
+      if (!passwordIsValid) {
+         res.status(401).send("Invalid password.");
+         return;
+      }
+      res.status(200).send(loggedInUser['_id']);
+      
+   } catch (e: unknown) {
+      console.error(e);
+      if (e instanceof Error) {
+         res.status(400).send(e.message);
+      }
+   }
+})
