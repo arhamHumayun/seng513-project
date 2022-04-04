@@ -87,7 +87,8 @@ userRouter.post("/login", async (req:Request, res: Response) => {
          return;
       }
 
-      res.status(200).send(loggedInUser['_id']);
+      loggedInUser.password = '\0';
+      res.status(200).send(loggedInUser);
       
    } catch (e: unknown) {
       console.error(e);
