@@ -1,13 +1,21 @@
-import express, { Application, Request, Response } from 'express'
+import express from 'express'
+import { codeRouter } from './src/routes/code.router';
+import { userRouter } from './src/routes/users.router';
+import { connectToDatabase } from "./src/services/database.service"
 
-const app: Application = express()
+const app = express()
+const port = 3001
 
-const port: number = 3001
+connectToDatabase()
+   .then(() => {
+      app.use("/user", userRouter);
+      app.use("/code", codeRouter);
 
-app.get('/', (req: Request, res: Response) => {
-    res.send('Hello world!')
-})
-
-app.listen(port, function () {
-    console.log(`App is listening on port ${port} !`)
-})
+      app.listen(port, () => {
+         console.log(`Server started at http://localhost:${port}`);
+      });
+   })
+   .catch((error: Error) => {
+      console.error("Database connection failed", error);
+      process.exit();
+   });

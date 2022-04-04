@@ -1,5 +1,6 @@
 server/node_modules
 client/node_modules
+.env
 
 # recommended from the react typescript init
 .DS_Store
