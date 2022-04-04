@@ -1,7 +1,5 @@
 import React from "react";
-import Navbar from 'react-bootstrap/Navbar';
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
+import { Navbar, Container, Nav } from 'react-bootstrap';
 
 const appName = {
   fontSize : '36px'
@@ -14,7 +12,7 @@ const navLink = {
 function NavBarPartial() {
   return (
     <Navbar bg="dark" variant="dark">
-      <Container>
+      <Container fluid>
         <Navbar.Brand style={appName} href="/">&gt;_ SpeedCode</Navbar.Brand>
         <Navbar.Toggle />
         <Nav className="justify-content-end">
