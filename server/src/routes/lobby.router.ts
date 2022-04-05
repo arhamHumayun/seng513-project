@@ -155,7 +155,6 @@ function generateNextCode(){
 }
 
 function removeOldLobbies(){
-    console.log("Removing old lobbies...");
     let removaltime = new Date();
     removaltime.setSeconds(removaltime.getSeconds() - lobby_timeout_seconds);
     activeLobbies = activeLobbies.filter(x => x.lastActivity >= removaltime);
