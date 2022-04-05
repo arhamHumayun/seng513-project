@@ -35,14 +35,13 @@ lobbyRouter.get("/new/:type/:id", async (req: Request, resp: Response) => {
                 generateNextCode();
                 let lobby = new Lobby(nextCode,user);
                 activeLobbies.push(lobby);
-                resp.send(nextCode);
+                resp.status(200).send(nextCode);
             }
         }else if(type == 'private'){
             let privateCode = 'P' + user.name;
             let lobby = new Lobby(privateCode, user, true);
             activeLobbies.push(lobby);
-            resp.send(privateCode);
-
+            resp.status(200).send(privateCode);
         }else{
             resp.status(400).send("Invalid lobby type.");
         }
@@ -54,13 +53,11 @@ lobbyRouter.get("/new/:type/:id", async (req: Request, resp: Response) => {
 lobbyRouter.get("/join/:id/:code", async (req: Request, resp: Response) => {
     const code = req?.params?.code;
     const id = req?.params?.id;
-
     try{
         const query = { _id: new ObjectId(id) };
         const user = (await collections.users?.findOne(query)) as unknown as User;
-
         // filter lobbies by code
-        let filteredLobbies = activeLobbies.filter(x => x.code === code);
+        let filteredLobbies = activeLobbies.filter(x => x.code == code);
         if(filteredLobbies.length == 0){
             resp.status(400).send("Lobby not found.")
         }else{
@@ -68,6 +65,7 @@ lobbyRouter.get("/join/:id/:code", async (req: Request, resp: Response) => {
             // if found, push player to lobby list
             lobby.players.push(user);
             updateLobbyTimestamp(lobby);
+            resp.status(200).send(lobby);
         }
     }catch(e){
         resp.status(500).send("Unable to join lobby.");
@@ -77,7 +75,6 @@ lobbyRouter.get("/join/:id/:code", async (req: Request, resp: Response) => {
 lobbyRouter.get("/leave/:id/:code", async (req: Request, resp: Response) => {
     const code = req?.params?.code;
     const id = req?.params?.id;
-
     try{
         const query = { _id: new ObjectId(id) };
         const user = (await collections.users?.findOne(query)) as unknown as User;
@@ -85,16 +82,23 @@ lobbyRouter.get("/leave/:id/:code", async (req: Request, resp: Response) => {
         // filter lobbies by code
         let filteredLobbies = activeLobbies.filter(x => x.code === code);
         if(filteredLobbies.length == 0){
-            resp.status(400).send("Not connected to that lobby.")
+            resp.status(400).send(false);
         }else{
             
             let lobby = filteredLobbies[0];
             // if found, check whether host or player
-            // if host, 
-
+            // if host, remove lobby
+            if(lobby.host.id == user.id){
+                activeLobbies = activeLobbies.filter(x => x.code != code);
+                //console.log("Host left lobby.");
+            }else{
+                lobby.players = lobby.players.filter(x => x.id != user.id);
+                //console.log("Player left lobby.");
+            }
+            resp.status(200).send(true);
         }
     }catch(e){
-        resp.status(500).send("Unable to join lobby.");
+        resp.status(500).send(false);
     }
 });
 
