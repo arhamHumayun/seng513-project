@@ -1,9 +1,4 @@
 server/node_modules
 client/node_modules
-
-# recommended from the react typescript init
+.env
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
