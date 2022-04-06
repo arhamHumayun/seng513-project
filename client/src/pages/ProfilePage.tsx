@@ -37,10 +37,6 @@ const line = {
 	background: 'black'
 }
 
-const cler = {
-	float: 'center',
-}
-
 function Profile() {
   return (
     <div>
@@ -86,12 +82,12 @@ function Profile() {
 						</Col>
 						<Col></Col>
 						<Col style={border2}>
-							<Form.Label className="mt-2">Average Speed (wpm)</Form.Label>
+							<Form.Label className="mt-2">Average Speed (cpm)</Form.Label>
 							<Col><Form.Label>68.5</Form.Label></Col>
 						</Col>
 						<Col></Col>
 						<Col style={border2} className="mr-4">
-							<Form.Label className="mt-2">Top Speed (wpm)</Form.Label>
+							<Form.Label className="mt-2">Top Speed (cpm)</Form.Label>
 							<Col><Form.Label>74.6</Form.Label></Col>
 						</Col>
 					</Row>
