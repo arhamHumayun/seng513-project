@@ -1,4 +1,5 @@
-import React from "react";
+import React, {useState} from "react";
+import { createUser } from "../services/users";
 import NavBar from '../components/NavBarPartial';
 import { Form, Button, Container } from "react-bootstrap";
 
@@ -18,6 +19,21 @@ const border = {
 };
 
 function SignUp() {
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  async function submit() {
+    try {
+      let res = await createUser(username, password);
+      console.log(res)
+    } catch (err) {
+      console.log(err)
+    }
+    setUsername("");
+    setPassword("");
+  }
+
   return (
     <div>
       <NavBar/> 
@@ -29,14 +45,21 @@ function SignUp() {
               <Form.Text>for a access SpeedCode</Form.Text>
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Control type="username" placeholder="Username" />
+              <Form.Control type="username" placeholder="Username" onChange={(event) => {
+                setUsername(event.target.value);
+              }}/>
               <br/>
-              <Form.Control type="password" placeholder="Password" />
+              <Form.Control type="password" placeholder="Password" onChange={(event) => {
+                setPassword(event.target.value);
+              }}/>
               <br/>
               <Form.Control type="password" placeholder="Confirm Password" />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Button variant="outline-dark" type="submit" href="/newgame">Sign Up</Button>
+              <Button variant="outline-dark" type="submit" href="/newgame" onClick={(event) => {
+                event.preventDefault();
+                submit()
+              }}>Sign Up</Button>
               <Form.Text className="text-muted">Already have an account?</Form.Text>
               <Button variant="link" href="/signin"> Sign In</Button>
             </Form.Group>
