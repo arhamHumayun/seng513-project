@@ -32,12 +32,14 @@ lobbyRouter.get("/new/:type/:id", async (req: Request, resp: Response) => {
             if(outOfLobbies){
                 resp.status(503).send("Unable to create a new lobby, max lobbies created.");
             }else{
+                leaveLobbies(user);
                 generateNextCode();
                 let lobby = new Lobby(nextCode,user);
                 activeLobbies.push(lobby);
                 resp.status(200).send(nextCode);
             }
         }else if(type == 'private'){
+            leaveLobbies(user);
             let privateCode = 'P' + user.name;
             let lobby = new Lobby(privateCode, user, true);
             activeLobbies.push(lobby);
@@ -61,6 +63,7 @@ lobbyRouter.get("/join/:id/:code", async (req: Request, resp: Response) => {
         if(filteredLobbies.length == 0){
             resp.status(400).send("Lobby not found.")
         }else{
+            leaveLobbies(user);
             let lobby = filteredLobbies[0];
             // if found, push player to lobby list
             lobby.players.push(user);
@@ -166,6 +169,13 @@ function removeOldLobbies(){
 
 function updateLobbyTimestamp(lobby: Lobby){
     lobby.lastActivity = new Date();
+}
+
+function leaveLobbies(user: User){
+    // remove any lobbies the user is host of
+    activeLobbies = activeLobbies.filter(x => x.host.id != user.id);
+    activeLobbies.forEach( x => x.players.filter(y => y.id != user.id));
+    
 }
 
 /* Template
