@@ -1,7 +1,8 @@
 import React from "react";
 import { useState } from 'react';
+import profile from './../assets/default_profile.png';
 import NavBar from '../components/NavBarFull';
-import { Form, Button, Container, Row, Col } from "react-bootstrap";
+import { Form, Button, Container, Row, Col, Image } from "react-bootstrap";
 
 const center = {
   position: 'absolute' as 'absolute',
@@ -21,7 +22,17 @@ const border = {
   borderRadius : '10px'
 };
 
+const profilePic = {
+  width : "10vmax",
+}
+
 function Settings() {
+  const user = localStorage.getItem("user"); // get user from browser storage
+  let userObj = null;
+  if (user != null) {
+    userObj = JSON.parse(user);
+  }
+
   return (
     <div>
       <NavBar/>       
@@ -30,8 +41,9 @@ function Settings() {
 					<Row className="text-left"><Col>
 						<Button variant="outline-dark" href="/profile">Back</Button>
 					</Col></Row>
-					<Row className="mb-4">
-						<Form.Label className="float-left" variant="outline-dark">User [with profile picture]</Form.Label>
+					<Row className="mb-4 row justify-content-center">
+            <Image style={profilePic} src={profile} alt="profilePic" />
+						<Form.Label className="float-left display-5" variant="outline-dark">{userObj.name}</Form.Label>
 					</Row>
 					<Row><Col className="mt-4">
             <Button size="lg" variant="outline-dark">Update Profile Picture</Button>

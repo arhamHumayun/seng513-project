@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import { IUserResponse } from "../interfaces/types";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/users";
 import NavBar from '../components/NavBarPartial';
@@ -39,6 +40,10 @@ function SignIn() {
     try {
       let res = await loginUser(username, password);
       console.log(res)
+
+      // store the user in localStorage
+      localStorage.setItem('user', JSON.stringify(res));
+
       routeChange("/newgame");
     } catch (err) {
       console.log(err)
