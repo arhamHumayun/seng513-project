@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import { useNavigate } from "react-router-dom";
 import { createUser } from "../services/users";
 import NavBar from '../components/NavBarPartial';
 import { Form, Button, Container } from "react-bootstrap";
@@ -22,11 +23,23 @@ function SignUp() {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  let navigate = useNavigate(); 
+  const routeChange = (path : string) =>{ 
+    navigate(path);
+  }
 
   async function submit() {
+
+    if (!(password === confirmPassword)) {
+      console.log("The passwords don't match!")
+      return;
+    }
     try {
       let res = await createUser(username, password);
       console.log(res)
+      routeChange("/signin"); // change path on success
     } catch (err) {
       console.log(err)
     }
@@ -53,12 +66,14 @@ function SignUp() {
                 setPassword(event.target.value);
               }}/>
               <br/>
-              <Form.Control type="password" placeholder="Confirm Password" />
+              <Form.Control type="password" placeholder="Confirm Password" onChange={(event) => {
+                setConfirmPassword(event.target.value);
+              }}/>
             </Form.Group>
             <Form.Group className="mb-3">
               <Button variant="outline-dark" type="submit" href="/newgame" onClick={(event) => {
                 event.preventDefault();
-                submit()
+                submit();                
               }}>Sign Up</Button>
               <Form.Text className="text-muted">Already have an account?</Form.Text>
               <Button variant="link" href="/signin"> Sign In</Button>

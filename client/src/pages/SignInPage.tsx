@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/users";
 import NavBar from '../components/NavBarPartial';
 import { Form, Button, Container } from "react-bootstrap";
@@ -23,10 +24,16 @@ function SignIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  let navigate = useNavigate(); 
+  const routeChange = (path : string) =>{ 
+    navigate(path);
+  }
+
   async function submit() {
     try {
       let res = await loginUser(username, password);
       console.log(res)
+      routeChange("/newgame");
     } catch (err) {
       console.log(err)
     }
