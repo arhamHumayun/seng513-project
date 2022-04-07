@@ -1,7 +1,7 @@
-import React from "react";
-import { useState } from 'react';
+import React, { Component, useState, useEffect } from "react";
 import NavBar from '../components/NavBarFull';
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
+import axiosInstance from "axios"
 
 const center = {
   position: 'absolute' as 'absolute',
