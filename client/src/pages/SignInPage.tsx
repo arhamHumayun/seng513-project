@@ -24,12 +24,18 @@ function SignIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  // page navigation
   let navigate = useNavigate(); 
   const routeChange = (path : string) =>{ 
     navigate(path);
   }
 
+  // form submission
   async function submit() {
+    if (username == "" || password == "") {
+      console.log("Please fill out all fields!");
+      return;
+    }
     try {
       let res = await loginUser(username, password);
       console.log(res)
@@ -52,18 +58,18 @@ function SignIn() {
               <Form.Text>to access SpeedCode</Form.Text>
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Control type="username" placeholder="Username" onChange={(event) => {
+              <Form.Control type="username" value={username} placeholder="Username" onChange={(event) => {
                 setUsername(event.target.value);
               }}/>
               <br/>
-              <Form.Control type="password" placeholder="Password" onChange={(event) => {
+              <Form.Control type="password" value={password} placeholder="Password" onChange={(event) => {
                 setPassword(event.target.value);
               }}/>
             </Form.Group>
             <Form.Group className="mb-3">
               <Button variant="outline-dark" type="submit" href="/newgame" onClick={(event) => {
                 event.preventDefault();
-                submit()
+                submit();
               }}>Sign In</Button>
               <Form.Text className="text-muted">Don't have an account?</Form.Text>
               <Button variant="link" href="/signup"> Sign Up</Button>
