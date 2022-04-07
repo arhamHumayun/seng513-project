@@ -2,10 +2,10 @@ import axios from "axios";
 import { IUserResponse } from "../interfaces/types";
 axios.defaults.baseURL = "http://localhost:3001"
 
-export async function createUser(username: string, password: string) {
+export async function createUser(name: string, password: string) {
   try {
     const response = await axios.post<IUserResponse>('/user/signup', {
-      username,
+      name,
       password
     });
     return response.data;
@@ -15,10 +15,10 @@ export async function createUser(username: string, password: string) {
   }
 }
 
-export async function loginUser(username: string, password: string) {
+export async function loginUser(name: string, password: string) {
   try {
     const response = await axios.post<IUserResponse>('/user/login', {
-      username,
+      name,
       password
     });
     return response.data;

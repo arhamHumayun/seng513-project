@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import { useNavigate } from "react-router-dom";
 import { createUser } from "../services/users";
 import NavBar from '../components/NavBarPartial';
 import { Form, Button, Container } from "react-bootstrap";
@@ -22,11 +23,24 @@ function SignUp() {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
+  // page navigation
+  let navigate = useNavigate(); 
+  const routeChange = (path : string) =>{ 
+    navigate(path);
+  }
+
+  // form submission
   async function submit() {
+    if (!(password === confirmPassword)) {
+      console.log("The passwords don't match!")
+      return;
+    }
     try {
       let res = await createUser(username, password);
       console.log(res)
+      routeChange("/signin"); // change path on success
     } catch (err) {
       console.log(err)
     }
@@ -45,20 +59,22 @@ function SignUp() {
               <Form.Text>for a access SpeedCode</Form.Text>
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Control type="username" placeholder="Username" onChange={(event) => {
+              <Form.Control type="username" value={username} placeholder="Username" onChange={(event) => {
                 setUsername(event.target.value);
               }}/>
               <br/>
-              <Form.Control type="password" placeholder="Password" onChange={(event) => {
+              <Form.Control type="password" value={password} placeholder="Password" onChange={(event) => {
                 setPassword(event.target.value);
               }}/>
               <br/>
-              <Form.Control type="password" placeholder="Confirm Password" />
+              <Form.Control type="password" value={confirmPassword} placeholder="Confirm Password" onChange={(event) => {
+                setConfirmPassword(event.target.value);
+              }}/>
             </Form.Group>
             <Form.Group className="mb-3">
               <Button variant="outline-dark" type="submit" href="/newgame" onClick={(event) => {
                 event.preventDefault();
-                submit()
+                submit();                
               }}>Sign Up</Button>
               <Form.Text className="text-muted">Already have an account?</Form.Text>
               <Button variant="link" href="/signin"> Sign In</Button>
