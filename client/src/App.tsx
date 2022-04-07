@@ -6,6 +6,9 @@ import SignUp from './pages/SignUpPage';
 import Home from './pages/HomePage';
 import NewGame from './pages/NewGamePage';
 import DummyGame from './pages/DummyGamePage';
+import Profile from './pages/ProfilePage';
+import Stats from './pages/StatsPage';
+import Settings from './pages/SettingsPage';
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
@@ -19,6 +22,9 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/newgame" element={<NewGame />} />
         <Route path="/dummygame" element={<DummyGame />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/stats" element={<Stats />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
       </BrowserRouter>
     </div>
