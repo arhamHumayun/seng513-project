@@ -34,7 +34,7 @@ function SignUp() {
   // form submission
   async function submit() {
     if (!(password === confirmPassword)) {
-      console.log("The passwords don't match!")
+      alert("The passwords don't match!")
       return;
     }
     try {
