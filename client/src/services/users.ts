@@ -27,3 +27,10 @@ export async function loginUser(name: string, password: string) {
     throw new Error("Could not login user");
   }
 }
+
+// WHY DOESNT THIS WORK
+const user = localStorage.getItem("user"); // get user from browser storage
+let userObj: { name: string; _id: string; } | null = null;
+if (user != null)
+  userObj = JSON.parse(user);
+export default userObj;
