@@ -13,5 +13,6 @@ export default class Lobby {
       this.players = new Array<User>();
       this.lastActivity = new Date();
       this.isPrivate = isPrivate;
+      this.players.push(host);
    }
 }
