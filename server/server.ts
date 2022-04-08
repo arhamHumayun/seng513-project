@@ -8,6 +8,16 @@ import { gameRouter } from 'src/routes/game.router';
 const app = express()
 const port = 3001
 
+// prevents CORS errors during requests
+const cors=require("cors");
+const corsOptions ={
+   origin:'*', 
+   credentials:true,          
+   optionSuccessStatus:200,
+}
+
+app.use(cors(corsOptions))
+
 connectToDatabase()
    .then(() => {
       app.use("/user", userRouter);
