@@ -114,7 +114,7 @@ lobbyRouter.get("/getLobby/:id", async (req: Request, resp: Response) => {
         const user = (await collections.users?.findOne(query)) as unknown as User;
 
         // filter lobbies by code
-        let filteredLobbies = activeLobbies.filter(x => x.host == user || x.players.find(y => y.id == user.id));
+        let filteredLobbies = activeLobbies.filter(x => x.players.find(y => y.id == user.id));
         if(filteredLobbies.length == 0){
             resp.status(400).send('User not in a lobby.');
         }else{
