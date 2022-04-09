@@ -7,7 +7,7 @@ import { gameRouter } from 'src/routes/game.router';
 import { gameStatRouter } from 'src/routes/gameStat.router';
 
 const app = express()
-const port = 3002
+const port = 3001
 
 // prevents CORS errors during requests
 const cors=require("cors");
