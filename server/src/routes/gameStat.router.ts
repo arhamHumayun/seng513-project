@@ -1,8 +1,7 @@
 import { ObjectId } from "mongodb";
 import express, { Request, Response } from "express";
-import { collections } from "../services/database.service";
-import GameStat from "src/models/gameStat";
-import User from "src/models/user";
+import { collections } from "../services/database.service.js";
+import GameStat from "../models/gameStat.js";
 
 export const gameStatRouter = express.Router();
 

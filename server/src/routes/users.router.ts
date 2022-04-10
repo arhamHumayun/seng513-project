@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import { ObjectId } from "mongodb";
-import { collections } from "../services/database.service";
-import User from "../models/user";
+import { collections } from "../services/database.service.js";
+import User from "../models/user.js";
 import bcrypt from 'bcrypt';
 
 const saltOrRounds = 8;
