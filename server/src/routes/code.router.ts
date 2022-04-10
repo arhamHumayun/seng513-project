@@ -44,7 +44,7 @@ codeRouter.get("/random", async (req: Request, res: Response) => {
    }
 });
 
-codeRouter.post("/",async (req:Request, res: Response) => {
+codeRouter.post("/", async (req:Request, res: Response) => {
    try {
       const newCode = req.body as Code;
       const result = await collections.code?.insertOne(newCode);
