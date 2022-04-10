@@ -6,8 +6,8 @@ import { connectToDatabase } from "./src/services/database.service"
 import { gameRouter } from 'src/routes/game.router';
 import { gameStatRouter } from 'src/routes/gameStat.router';
 
-const app = express()
-const port = 3001
+const app = express();
+const port = process.env.PORT || 3001;
 
 // prevents CORS errors during requests
 const cors=require("cors");
