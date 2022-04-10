@@ -2,6 +2,7 @@ import React from "react";
 import { useState } from 'react';
 import NavBar from '../components/NavBarFull';
 import { Form, Button, Container, Row, Col, ProgressBar } from "react-bootstrap";
+import '../index.css';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 axios.defaults.baseURL = "http://localhost:3001"
@@ -24,7 +25,19 @@ const border = {
   borderRadius : '10px'
 };
 
+const incorrectText = {
+  backgroundColor: '#FDBBBC'
+};
+const correctText = {
+  backgroundColor: '#C7FDBB'
+};
+
 function Lobby() {
+
+  const [codeSnippet, setCodeSnippet] = useState("");
+  const [userInput, setUserInput] = useState("");
+  const [inputColor, setinputColor] = useState(correctText);
+
   const user = localStorage.getItem("user"); // get user from browser storage
   let userObj: { name: string; _id: string; } | null = null;
   if (user != null) {
@@ -35,6 +48,19 @@ function Lobby() {
   let navigate = useNavigate(); 
   const routeChange = (path : string) =>{ 
     navigate(path);
+  }
+
+  // compare input against code snippet as user types
+  function handleTyping(userInput : string) {
+    let subStr = codeSnippet.substring(0, userInput.length);
+    if (subStr == userInput) {
+      // change to green
+      setinputColor(correctText);
+    }
+    else {
+      // change to red
+      setinputColor(incorrectText);
+    }
   }
 
   // remove player
@@ -98,16 +124,22 @@ function Lobby() {
           </Row>
           <Container>
             <Row className="text-left" style={border}>
-              <Form.Label >def countdown(n):</Form.Label>
+              <p className="display-linebreak">{codeSnippet}</p>
+              {/* <Form.Label style={withBreaks}>{codeSnippet}</Form.Label> */}
+              {/* <Form.Label >def countdown(n):</Form.Label>
               <Form.Label>&emsp;if n less than 0:</Form.Label>
               <Form.Label>&emsp;&emsp;print('Blastoff!')</Form.Label>
               <Form.Label>&emsp;else:</Form.Label>
               <Form.Label>&emsp;&emsp;print(n)</Form.Label>
-              <Form.Label>&emsp;&emsp;countdown(n - 1)</Form.Label>
+              <Form.Label>&emsp;&emsp;countdown(n - 1)</Form.Label> */}
             </Row>
             <br/>
             <Row>
-              <Form.Control type="text" placeholder="Type the above code snippet here when the race begins" />
+              <textarea style={inputColor}  placeholder="Type the above code snippet here when the race begins" onChange={(event) => {
+                event.preventDefault();
+                setUserInput(event.target.value);
+                handleTyping(event.target.value);
+              }}/>
             </Row>
           </Container>
           <br/>
@@ -119,7 +151,10 @@ function Lobby() {
               }}>Leave Race</Button>
             </Col>
             <Col>
-              <Button variant="outline-dark">Start</Button>
+              <Button variant="outline-dark" onClick={(event) => {
+                event.preventDefault();
+                setCodeSnippet("def countdown(n):\nif (n <= 0):\n\t\tprint('Blastoff!')\nelse:\n\t\tprint(n)\n\t\tcountdown(n - 1)");               
+              }}>Start</Button>
             </Col>
           </Row>
         </Col>
