@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import Lobby from "../models/lobby.js";
 import User from "../models/user.js";
+import GameStat from "../models/gameStat"
 import { collections } from "../services/database.service.js";
 
 export const lobbyRouter = express.Router();
@@ -125,6 +126,49 @@ lobbyRouter.get("/getLobby/:id", async (req: Request, resp: Response) => {
     }
 });
 
+// This is the endpoint to be called when the client continuously pings the server
+lobbyRouter.get("/playerStats/:code", async (req: Request, resp: Response) => {
+    const lobbyCode = req?.params?.code;
+    const currentLobby = findLobbyByCode(lobbyCode) as Lobby;
+    const results = [];
+
+    for (let i = 0; i < currentLobby.playerStats.length; i++) {
+        results.push({
+            player_name: currentLobby.playerStats[i].user.name,
+            progress: currentLobby.playerStats[i].completionTimeSeconds / currentLobby.playerStats[i].completedCodeLines,
+            current_cpm: currentLobby.playerStats[i].cpm,
+        })
+    }
+    resp.status(200).send(results);
+});
+
+// This is the endpoint to be called when the client pings for the scoreboard
+lobbyRouter.get("/scoreboard/:code", async (req: Request, resp: Response) => {
+    const lobbyCode = req?.params?.code;
+    const currentLobby = findLobbyByCode(lobbyCode) as Lobby;
+    const results = [];
+
+    for (let i = 0; i < currentLobby.playerStats.length; i++) {
+        results.push({
+            player_name: currentLobby.playerStats[i].user.name,
+            position: currentLobby.playerStats[i].currentPosition,
+            current_cpm: currentLobby.playerStats[i].cpm,
+        });
+
+        const currentDate = new Date();
+        const gameStat = new GameStat( 
+            currentLobby.playerStats[i].user.id!,
+            currentLobby.playerStats[i].cpm,
+            currentLobby.playerStats[i].correct, 
+            currentLobby.playerStats[i].incorrect,
+            currentDate);
+
+        const dbResult = await collections.gameStats?.insertOne(gameStat);
+        console.log(dbResult);
+    }
+    resp.status(200).send(results);
+});
+
 function generateNextCode(){
     // check if there are any codes to generate
     if(activeLobbies.length >= (24^4)){
@@ -156,6 +200,14 @@ function generateNextCode(){
         // only exit loop once we find a lobby code not in active use
         if(activeLobbies.findIndex(x => x.code == nextCode) == -1){
             break;
+        }
+    }
+}
+
+function findLobbyByCode(code:string) {
+    for (let i = 0; i < activeLobbies.length; i++) {
+        if (activeLobbies[i].code == code) {
+            return activeLobbies[i] as Lobby;
         }
     }
 }
