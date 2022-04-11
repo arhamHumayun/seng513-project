@@ -1,9 +1,5 @@
 import express, { Request, Response } from "express";
-import { ObjectId } from "mongodb";
-import Code from "src/models/code";
-import Lobby from "src/models/lobby";
-import User from "src/models/user";
-import { collections } from "../services/database.service";
+import Code from "../models/code.js";
 
 export const gameRouter = express.Router();
 

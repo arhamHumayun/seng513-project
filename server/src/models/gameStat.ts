@@ -1,4 +1,4 @@
-import { MongoAPIError, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
 
 export default class GameStat {
    constructor(

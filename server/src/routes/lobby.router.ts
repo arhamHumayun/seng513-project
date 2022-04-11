@@ -1,9 +1,8 @@
 import express, { Request, Response } from "express";
 import { ObjectId } from "mongodb";
-import Lobby from "src/models/lobby";
-import User from "src/models/user";
-import { collections } from "../services/database.service";
-import { codeRouter } from "./code.router";
+import Lobby from "../models/lobby.js";
+import User from "../models/user.js";
+import { collections } from "../services/database.service.js";
 
 export const lobbyRouter = express.Router();
 

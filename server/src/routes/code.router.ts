@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import { ObjectId } from "mongodb";
-import { collections } from "../services/database.service";
-import Code from "../models/code";
+import { collections } from "../services/database.service.js";
+import Code from "../models/code.js";
 
 export const codeRouter = express.Router();
 

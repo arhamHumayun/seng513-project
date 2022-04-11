@@ -1,16 +1,16 @@
 import express from 'express'
-import { codeRouter } from './src/routes/code.router';
-import { userRouter } from './src/routes/users.router';
-import { lobbyRouter } from './src/routes/lobby.router'
-import { connectToDatabase } from "./src/services/database.service"
-import { gameRouter } from 'src/routes/game.router';
-import { gameStatRouter } from 'src/routes/gameStat.router';
+import { codeRouter } from './src/routes/code.router.js';
+import { userRouter } from './src/routes/users.router.js';
+import { lobbyRouter } from './src/routes/lobby.router.js'
+import { connectToDatabase } from './src/services/database.service.js';
+import { gameRouter } from './src/routes/game.router.js';
+import { gameStatRouter } from './src/routes/gameStat.router.js';
+import cors from 'cors';
 
-const app = express()
-const port = 3001
+const app = express();
+const port = process.env.PORT || 3002;
 
 // prevents CORS errors during requests
-const cors=require("cors");
 const corsOptions ={
    origin:'*', 
    credentials:true,          
