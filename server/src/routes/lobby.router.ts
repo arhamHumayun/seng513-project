@@ -3,19 +3,13 @@ import { ObjectId } from "mongodb";
 import Lobby from "../models/lobby.js";
 import User from "../models/user.js";
 import { collections } from "../services/database.service.js";
-
+import { lobbyService } from "../services/lobby.service.js"
 export const lobbyRouter = express.Router();
 
 lobbyRouter.use(express.json());
 
-const lobby_timeout_seconds = 15 * 60;
-const lobby_remover_interval_milliseconds = 15 * 1000
-
-var activityChecker = setInterval(removeOldLobbies, lobby_remover_interval_milliseconds);
-
 var nextCode = 'ZZZZ';
 var outOfLobbies = false;
-var activeLobbies = new Array<Lobby>();
 
 lobbyRouter.get("/", async (req: Request, resp: Response) => {
     resp.status(400).send("Bad Request.");
@@ -27,21 +21,22 @@ lobbyRouter.get("/new/:type/:id", async (req: Request, resp: Response) => {
     try{
         const query = { _id: new ObjectId(id) };
         const user = (await collections.users?.findOne(query)) as unknown as User;
+        let activeLobbies = lobbyService.getLobbies();
         if(type == 'public'){
             if(outOfLobbies){
                 resp.status(503).send("Unable to create a new lobby, max lobbies created.");
             }else{
-                activeLobbies = leaveLobbies(user, activeLobbies);
+                lobbyService.leaveLobbies(user);
                 generateNextCode();
                 let lobby = new Lobby(nextCode,user);
-                activeLobbies.push(lobby);
+                lobbyService.addLobby(lobby)
                 resp.status(200).send(nextCode);
             }
         }else if(type == 'private'){
-            activeLobbies = leaveLobbies(user, activeLobbies);
+            lobbyService.leaveLobbies(user);
             let privateCode = 'P' + user.name;
             let lobby = new Lobby(privateCode, user, true);
-            activeLobbies.push(lobby);
+            lobbyService.addLobby(lobby)
             resp.status(200).send(privateCode);
         }else{
             resp.status(400).send("Invalid lobby type.");
@@ -58,15 +53,15 @@ lobbyRouter.get("/join/:id/:code", async (req: Request, resp: Response) => {
         const query = { _id: new ObjectId(id) };
         const user = (await collections.users?.findOne(query)) as unknown as User;
         // filter lobbies by code
-        let filteredLobbies = activeLobbies.filter(x => x.code == code);
+        let filteredLobbies = lobbyService.getLobby(code)
         if(filteredLobbies.length == 0){
             resp.status(400).send("Lobby not found.")
         }else{
-            activeLobbies = leaveLobbies(user, activeLobbies);
+            lobbyService.leaveLobbies(user);
             let lobby = filteredLobbies[0];
             // if found, push player to lobby list
             lobby.players.push(user);
-            updateLobbyTimestamp(lobby);
+            lobbyService.updateLobby(lobby);
             resp.status(200).send(lobby);
         }
     }catch(e){
@@ -82,21 +77,11 @@ lobbyRouter.get("/leave/:id/:code", async (req: Request, resp: Response) => {
         const user = (await collections.users?.findOne(query)) as unknown as User;
 
         // filter lobbies by code
-        let filteredLobbies = activeLobbies.filter(x => x.code === code);
+        let filteredLobbies = lobbyService.getLobby(code)
         if(filteredLobbies.length == 0){
             resp.status(400).send(false);
         }else{
-            
-            let lobby = filteredLobbies[0];
-            // if found, check whether host or player
-            // if host, remove lobby
-            if(lobby.host.name == user.name){
-                activeLobbies = activeLobbies.filter(x => x.code != code);
-                //console.log("Host left lobby.");
-            }else{
-                lobby.players = lobby.players.filter(x => x.name != user.name);
-                //console.log("Player left lobby.");
-            }
+            lobbyService.leaveLobbies(user);
             resp.status(200).send(true);
         }
     }catch(e){
@@ -111,7 +96,7 @@ lobbyRouter.get("/getLobby/:id", async (req: Request, resp: Response) => {
         const query = { _id: new ObjectId(id) };
         const user = (await collections.users?.findOne(query)) as unknown as User;
         // filter lobbies by code
-        let filteredLobbies = activeLobbies.filter(x => x.players.find(y => y.name == user.name));
+        let filteredLobbies = lobbyService.getLobbies().filter(x => x.players.find(y => y.name == user.name));
         if(filteredLobbies.length == 0){
             resp.status(400).send('User not in a lobby.');
         }else{
@@ -125,6 +110,7 @@ lobbyRouter.get("/getLobby/:id", async (req: Request, resp: Response) => {
 
 function generateNextCode(){
     // check if there are any codes to generate
+    let activeLobbies = lobbyService.getLobbies();
     if(activeLobbies.length >= (24^4)){
         outOfLobbies = true;
         return;
@@ -158,22 +144,6 @@ function generateNextCode(){
     }
 }
 
-function removeOldLobbies(){
-    let removaltime = new Date();
-    removaltime.setSeconds(removaltime.getSeconds() - lobby_timeout_seconds);
-    activeLobbies = activeLobbies.filter(x => x.lastActivity >= removaltime);
-}
-
-function updateLobbyTimestamp(lobby: Lobby){
-    lobby.lastActivity = new Date();
-}
-
-function leaveLobbies(user: User, lobbyList: Lobby[]){
-    // remove any lobbies the user is host of
-    lobbyList = lobbyList.filter(x => x.host.name != user.name);
-    lobbyList.forEach( x => x.players = x.players.filter(y => y.name != user.name));
-    return lobbyList;
-}
 
 /* Template
 
