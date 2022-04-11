@@ -30,7 +30,12 @@ export class lobbyService{
     }
     
     static getLobby(code: string){
-        return this.activeLobbies.filter( x => x.code == code);
+        let res = this.activeLobbies.filter( x => x.code == code);
+        if(res.length == 0){
+            return undefined;
+        }else{
+            return res[0];
+        }
     }
     
     static addLobby(lobby: Lobby){
