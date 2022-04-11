@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import Code from "../models/code.js";
+import { lobbyService } from "../services/lobby.service.js"
 
 export const gameRouter = express.Router();
 
@@ -11,17 +12,17 @@ gameRouter.get("/", async (req: Request, resp: Response) => {
     resp.status(400).send("Bad Game Page Request.");
 });
 
-gameRouter.post("setsnippet/:userid", async (req: Request, resp: Response) =>{
+gameRouter.post("lineComplete/:userid/:lobbyId", async (req: Request, resp: Response) =>{
     //TODO
 });
 
-gameRouter.get("status/:code", async (req: Request, resp: Response) => {
+gameRouter.get("onSubmit/:code", async (req: Request, resp: Response) => {
     const code = req?.params?.code;
     //TODO
 });
 
-gameRouter.get("doneLine/:userid", async (req: Request, resp: Response) =>{
-    //TODO
+gameRouter.get("test", async (req: Request, resp: Response) =>{
+    resp.status(200).send(lobbyService.getLobbies());
 });
 
 
