@@ -34,18 +34,19 @@ function SignIn() {
   // form submission
   async function submit() {
     if (username == "" || password == "") {
-      console.log("Please fill out all fields!");
+      alert("Please fill out all fields.");
       return;
     }
     try {
       let res = await loginUser(username, password);
       console.log(res)
-
+      
       // store the user in localStorage
       localStorage.setItem('user', JSON.stringify(res));
-
+      
       routeChange("/newgame");
     } catch (err) {
+      alert("Invalid username/password.");
       console.log(err)
     }
     setUsername("");

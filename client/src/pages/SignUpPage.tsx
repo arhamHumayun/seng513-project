@@ -33,8 +33,13 @@ function SignUp() {
 
   // form submission
   async function submit() {
+    // form validation
+    if ( username === "" || password === "" || confirmPassword === "") {
+      alert("Please fill out all fields.");
+      return;
+    }
     if (!(password === confirmPassword)) {
-      alert("The passwords don't match!")
+      alert("The passwords don't match.");
       return;
     }
     try {
@@ -42,10 +47,12 @@ function SignUp() {
       console.log(res)
       routeChange("/signin"); // change path on success
     } catch (err) {
+      alert("Username: '" + username + "' is already taken.");
       console.log(err)
     }
     setUsername("");
     setPassword("");
+    setConfirmPassword("");
   }
 
   return (
