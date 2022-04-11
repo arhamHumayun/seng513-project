@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import Lobby from "../models/lobby.js";
 import User from "../models/user.js";
+import GameStat from "../models/gameStat"
 import { collections } from "../services/database.service.js";
 
 export const lobbyRouter = express.Router();
@@ -152,7 +153,18 @@ lobbyRouter.get("/scoreboard/:code", async (req: Request, resp: Response) => {
             player_name: currentLobby.playerStats[i].user.name,
             position: currentLobby.playerStats[i].currentPosition,
             current_cpm: currentLobby.playerStats[i].cpm,
-        })
+        });
+
+        const currentDate = new Date();
+        const gameStat = new GameStat( 
+            currentLobby.playerStats[i].user.id!,
+            currentLobby.playerStats[i].cpm,
+            currentLobby.playerStats[i].correct, 
+            currentLobby.playerStats[i].incorrect,
+            currentDate);
+
+        const dbResult = await collections.gameStats?.insertOne(gameStat);
+        console.log(dbResult);
     }
     resp.status(200).send(results);
 });
