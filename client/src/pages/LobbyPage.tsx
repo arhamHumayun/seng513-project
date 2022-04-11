@@ -3,8 +3,10 @@ import { useState } from 'react';
 import NavBar from '../components/NavBarFull';
 import { Form, Button, Container, Row, Col, ProgressBar } from "react-bootstrap";
 import '../index.css';
+import GameData from "../models/Game";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { convertCompilerOptionsFromJson } from "typescript";
 axios.defaults.baseURL = "http://localhost:3001"
 
 const center = {
@@ -25,19 +27,26 @@ const border = {
   borderRadius : '10px'
 };
 
-const incorrectText = {
+const wrongText = {
   backgroundColor: '#FDBBBC'
 };
-const correctText = {
+const validText = {
   backgroundColor: '#C7FDBB'
 };
+const disabledText = {
+  backgroundColor: '#D3D3D3',
+  pointerEvents : "none",
+};
+
+let correctKeyStrokes = 0;
+let incorrectKeyStrokes = 0;
 
 function Lobby() {
-
+  
   const [codeSnippet, setCodeSnippet] = useState("");
   const [userInput, setUserInput] = useState("");
-  const [inputColor, setinputColor] = useState(correctText);
-
+  const [inputColor, setinputColor] = useState(validText);
+  
   const user = localStorage.getItem("user"); // get user from browser storage
   let userObj: { name: string; _id: string; } | null = null;
   if (user != null) {
@@ -52,15 +61,34 @@ function Lobby() {
 
   // compare input against code snippet as user types
   function handleTyping(userInput : string) {
-    let subStr = codeSnippet.substring(0, userInput.length);
-    if (subStr == userInput) {
-      // change to green
-      setinputColor(correctText);
+    let length = userInput.length;
+    let subStr = codeSnippet.substring(0, length);
+
+    if (subStr == userInput) { // text matches
+      setinputColor(validText); // change to green
+      correctKeyStrokes ++;
+      
+      if (length == codeSnippet.length) { // user finished
+        console.log(userObj!.name + ' finished typing')
+        setinputColor(disabledText);
+        let accuracy = (correctKeyStrokes / (correctKeyStrokes + incorrectKeyStrokes)) *100;
+        console.log('Accuracy: ' + accuracy + '%');
+      }
     }
-    else {
-      // change to red
-      setinputColor(incorrectText);
+    else { // text doesn't match
+      setinputColor(wrongText); // change to red
+      incorrectKeyStrokes ++;
+      console.log(incorrectKeyStrokes);
     }
+  }
+
+  // completion of each line
+  const handleEnterPress = () => {
+    let progress = (userInput.length / codeSnippet.length) * 100;
+    let accuracy = (correctKeyStrokes / (correctKeyStrokes + incorrectKeyStrokes)) *100;
+    let gameData = new GameData(userObj!.name, 0, accuracy, progress);
+    console.log('GameData: ' + JSON.stringify(gameData));
+    // send data to server
   }
 
   // remove player
@@ -124,8 +152,8 @@ function Lobby() {
           </Row>
           <Container>
             <Row className="text-left" style={border}>
-              <p className="display-linebreak">{codeSnippet}</p>
-              {/* <Form.Label style={withBreaks}>{codeSnippet}</Form.Label> */}
+              {/* <h5 className="display-linebreak">{codeSnippet}</h5> */}
+              <textarea disabled value={codeSnippet}></textarea>
               {/* <Form.Label >def countdown(n):</Form.Label>
               <Form.Label>&emsp;if n less than 0:</Form.Label>
               <Form.Label>&emsp;&emsp;print('Blastoff!')</Form.Label>
@@ -135,7 +163,7 @@ function Lobby() {
             </Row>
             <br/>
             <Row>
-              <textarea style={inputColor}  placeholder="Type the above code snippet here when the race begins" onChange={(event) => {
+              <textarea style={inputColor}  placeholder="Type the above code snippet here when the race begins" onKeyPress={(e) => e.key === 'Enter' && handleEnterPress()} onChange={(event) => {
                 event.preventDefault();
                 setUserInput(event.target.value);
                 handleTyping(event.target.value);
@@ -153,7 +181,7 @@ function Lobby() {
             <Col>
               <Button variant="outline-dark" onClick={(event) => {
                 event.preventDefault();
-                setCodeSnippet("def countdown(n):\nif (n <= 0):\n\t\tprint('Blastoff!')\nelse:\n\t\tprint(n)\n\t\tcountdown(n - 1)");               
+                setCodeSnippet("def multiply(a, b):\nreturn(a * b)");               
               }}>Start</Button>
             </Col>
           </Row>
