@@ -19,7 +19,7 @@ function Home() {
         <Row>
           <Col className="text-left" md={{span: 9, offset: 0 }}>
             <Row>
-              <Form.Label className="display-3">Become Lightining Fast at Writing Code!</Form.Label>
+              <Form.Label className="display-3">Become Lightning Fast at Writing Code!</Form.Label>
             </Row>
             <Row>
               <Form.Label className="display-5">Compete in races against other players or practice solo.</Form.Label>
