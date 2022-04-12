@@ -1,6 +1,6 @@
 import axios from "axios";
 import { IUserResponse } from "../interfaces/types";
-axios.defaults.baseURL = "http://localhost:3001"
+axios.defaults.baseURL = "http://localhost:3002"
 
 export async function createUser(name: string, password: string) {
   try {

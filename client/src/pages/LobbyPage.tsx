@@ -7,7 +7,8 @@ import GameData from "../models/Game";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { convertCompilerOptionsFromJson } from "typescript";
-axios.defaults.baseURL = "http://localhost:3001"
+import Progress from './Progress';
+axios.defaults.baseURL = "http://localhost:3002"
 
 const center = {
   position: 'absolute' as 'absolute',
@@ -106,47 +107,19 @@ function Lobby() {
 
   return (
     <div>
-      <NavBar/>       
+      <NavBar/>  
+
+      <Container fluid className="mt-5"><Col><Row className="text-left">
+            <Form.Label >Room Code: A3J6K8</Form.Label>
+      </Row></Col></Container>
+
+      <Progress/>   
       <Container fluid style={center}>
         <Col>
-          <Row className="text-left">
+          {/* <Row className="text-left">
             <Form.Label >Room Code: A3J6K8</Form.Label>
-          </Row>
-          <Container>
-            <Row>
-              <Col className="text-left">
-                <Form.Label>Racer 1 (you)</Form.Label>
-              </Col>
-              <Col xs={8}>
-                <ProgressBar now={55} />
-              </Col>
-              <Col>
-                <Form.Label>48 wpm</Form.Label>
-              </Col>
-            </Row>
-            <Row>
-              <Col className="text-left">
-                <Form.Label>Racer 2</Form.Label>
-              </Col>
-              <Col xs={8}>
-                <ProgressBar now={80} />
-              </Col>
-              <Col>
-                <Form.Label>57 wpm</Form.Label>
-              </Col>
-            </Row>
-            <Row>
-              <Col className="text-left">
-                <Form.Label>Racer 3</Form.Label>
-              </Col>
-              <Col xs={8}>
-                <ProgressBar now={68} />
-              </Col>
-              <Col>
-                <Form.Label>53 wpm</Form.Label>
-              </Col>
-            </Row>
-          </Container>
+          </Row> */}
+
           <Row>
             <Form.Label>Code Snippet</Form.Label>
           </Row>

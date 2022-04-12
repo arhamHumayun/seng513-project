@@ -3,7 +3,7 @@ import NavBar from '../components/NavBarFull';
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-axios.defaults.baseURL = "http://localhost:3001"
+axios.defaults.baseURL = "http://localhost:3002"
 
 const center = {
   position: 'absolute' as 'absolute',
@@ -52,7 +52,7 @@ function NewGame() {
         console.log(response.data)
         routeChange("/lobby/type=public/code=" + response.data); // change path on success
     } catch (err) {
-      console.log(err)
+        console.log(err)
     }
     setRoomCode("");
   }
@@ -64,8 +64,8 @@ function NewGame() {
         console.log(response.data)
         routeChange("/lobby/type=public/code=" + roomCode); // change path on success
     } catch (err) {
-      console.log(err)
-      alert("Lobby does not exist")
+        console.log(err)
+        alert("Lobby does not exist")
     }
   }
 
