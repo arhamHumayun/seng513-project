@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from 'react';
 import NavBar from '../components/NavBarFull';
 import LobbyPlayers from "../components/lobbyPlayers";
-import { getLobbyData } from "../services/lobby";
+import { getLobbyData, getCodeSnippet, startGameService } from "../services/lobby";
 import { IUser } from "../interfaces/types";
 import { Form, Button, Container, Row, Col, ProgressBar } from "react-bootstrap";
 import '../index.css';
@@ -46,7 +46,7 @@ let incorrectKeyStrokes = 0;
 let startTime = 0;
 let endTime  = 0;
 let newLineStartTime = 0;
-// let newLineEndTime  = 0;
+let pollingRate = 5000;
 
 function Lobby() {
   
@@ -69,7 +69,7 @@ function Lobby() {
   }
 
   // execute when joining lobby -> adds players & code to UI 
-  async function joinedLobby() {
+  async function lobbyPolling() {
     let res = await getLobbyData(userObj!._id);
     console.log(res);
     setLobbyCode(res.code);
@@ -82,12 +82,36 @@ function Lobby() {
       players.push(res.players[i]);
     }
     setPlayers(players); // update players state
+
+    // poll lobby for new players until game starts
+    if (res.gameRunning == false) {
+      setTimeout(lobbyPolling, pollingRate); // every 5 seconds
+    }
+    else { // game started, switch to polling game data
+      setTimeout(gamePolling, pollingRate); // every 5 seconds
+    }
   }
 
-  // do stuff when game starts
-  function startGame() {
+  // get live stats during game play
+  async function gamePolling() {
+    console.log('Polling for game data');
+    let lobby_res = await getLobbyData(userObj!._id);
+    console.log(lobby_res);
+    setCodeSnippet(lobby_res.gameCode.code);
+
+
+
+    setTimeout(gamePolling, 2000);
+  }
+
+  // when host starts the game
+  async function startGame() {
     // add countdown timer?
-    setCodeSnippet("def multiply(a, b):\nreturn(a * b)");
+    let code_res = await getCodeSnippet();
+    console.log(code_res);
+    let game_res = await startGameService(userObj!._id, lobbyCode, code_res._id);
+    // setCodeSnippet("def multiply(a, b):\nreturn(a * b)");
+    setCodeSnippet(code_res.code);
     startTime = new Date().getTime(); // start time
     newLineStartTime = new Date().getTime(); // start time
   }
@@ -148,7 +172,7 @@ function Lobby() {
   }
 
   return (
-    <div onLoad= {() => joinedLobby()}>
+    <div onLoad= {() => lobbyPolling()}>
       <NavBar/>       
       <Container fluid style={center}>
         <Col>
@@ -157,39 +181,6 @@ function Lobby() {
           </Row>
           <Container>
             <LobbyPlayers players={players}/>
-            {/* <Row>
-              <Col className="text-left">
-                <Form.Label>Racer 1 (you)</Form.Label>
-              </Col>
-              <Col xs={8}>
-                <ProgressBar now={55} />
-              </Col>
-              <Col>
-                <Form.Label>48 wpm</Form.Label>
-              </Col>
-            </Row>
-            <Row>
-              <Col className="text-left">
-                <Form.Label>Racer 2</Form.Label>
-              </Col>
-              <Col xs={8}>
-                <ProgressBar now={80} />
-              </Col>
-              <Col>
-                <Form.Label>57 wpm</Form.Label>
-              </Col>
-            </Row>
-            <Row>
-              <Col className="text-left">
-                <Form.Label>Racer 3</Form.Label>
-              </Col>
-              <Col xs={8}>
-                <ProgressBar now={68} />
-              </Col>
-              <Col>
-                <Form.Label>53 wpm</Form.Label>
-              </Col>
-            </Row> */}
           </Container>
           <Row>
             <Form.Label>Code Snippet</Form.Label>
@@ -197,7 +188,7 @@ function Lobby() {
           <Container>
             <Row className="text-left" style={border}>
               {/* <h5 className="display-linebreak">{codeSnippet}</h5> */}
-              <textarea disabled value={codeSnippet}></textarea>
+              <textarea disabled style={{height: '400px'}} value={codeSnippet}></textarea>
             </Row>
             <br/>
             <Row>
