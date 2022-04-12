@@ -1,6 +1,9 @@
 import React from "react";
 import { useState } from 'react';
 import NavBar from '../components/NavBarFull';
+import LobbyPlayers from "../components/lobbyPlayers";
+import { getLobbyData } from "../services/lobby";
+import { IUser } from "../interfaces/types";
 import { Form, Button, Container, Row, Col, ProgressBar } from "react-bootstrap";
 import '../index.css';
 import GameData from "../models/Game";
@@ -50,8 +53,8 @@ function Lobby() {
   const [codeSnippet, setCodeSnippet] = useState("");
   const [userInput, setUserInput] = useState("");
   const [inputColor, setinputColor] = useState(validText);
-  // const [startTime, setStartTime] = useState<number>(0);
-  // const [endTime, setEndTime] = useState<number>(0);
+  const [players, setPlayers] = useState<IUser[]>([]);
+  const [lobbyCode, setLobbyCode] = useState<string>("");
   
   const user = localStorage.getItem("user"); // get user from browser storage
   let userObj: { name: string; _id: string; } | null = null;
@@ -65,8 +68,24 @@ function Lobby() {
     navigate(path);
   }
 
+  // execute when joining lobby -> adds players & code to UI 
+  async function joinedLobby() {
+    let res = await getLobbyData(userObj!._id);
+    console.log(res);
+    setLobbyCode(res.code);
+    // populate UI with players in lobby
+    let players = [];
+    for (var i = 0; i < res.players.length; i++) {
+      if (res.players[i].name == userObj!.name) { // mark user's name with '(you)' to distinguish them
+        res.players[i].name = res.players[i].name + ' (you)';
+      }
+      players.push(res.players[i]);
+    }
+    setPlayers(players); // update players state
+  }
+
   // do stuff when game starts
-  function setup() {
+  function startGame() {
     // add countdown timer?
     setCodeSnippet("def multiply(a, b):\nreturn(a * b)");
     startTime = new Date().getTime(); // start time
@@ -129,16 +148,16 @@ function Lobby() {
   }
 
   return (
-    <div>
+    <div onLoad= {() => joinedLobby()}>
       <NavBar/>       
       <Container fluid style={center}>
         <Col>
           <Row className="text-left">
-            <Form.Label >Room Code: A3J6K8</Form.Label>
-            <Form.Label >StartTime: {startTime}</Form.Label>
+            <Form.Label >Room Code: {lobbyCode}</Form.Label>
           </Row>
           <Container>
-            <Row>
+            <LobbyPlayers players={players}/>
+            {/* <Row>
               <Col className="text-left">
                 <Form.Label>Racer 1 (you)</Form.Label>
               </Col>
@@ -170,7 +189,7 @@ function Lobby() {
               <Col>
                 <Form.Label>53 wpm</Form.Label>
               </Col>
-            </Row>
+            </Row> */}
           </Container>
           <Row>
             <Form.Label>Code Snippet</Form.Label>
@@ -200,7 +219,7 @@ function Lobby() {
             <Col>
               <Button variant="outline-dark" onClick={(event) => {
                 event.preventDefault();
-                setup();           
+                startGame();           
               }}>Start</Button>
             </Col>
           </Row>
