@@ -8,6 +8,7 @@ export default class playerStat {
    public incorrect: number;
    public totalCodeLines: number;
    public completedCodeLines: number;
+   public progress: number;
 
    constructor(user: User, completionTime: number, currentPosition: number, cpm: number, correct: number, incorrect: number, totalCodeLines: number) {
       this.user = user;
@@ -18,5 +19,6 @@ export default class playerStat {
       this.incorrect = incorrect;
       this.totalCodeLines = totalCodeLines;
       this.completedCodeLines = 0;
+      this.progress = 0;
    }
 }
