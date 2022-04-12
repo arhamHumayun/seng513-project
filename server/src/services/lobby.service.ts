@@ -68,6 +68,7 @@ export class lobbyService{
         // remove any lobbies the user is host of
         this.activeLobbies = this.activeLobbies.filter(x => x.host.name != user.name);
         this.activeLobbies.forEach( x => x.players = x.players.filter(y => y.name != user.name));
+        this.activeLobbies.forEach( x => x.playerStats = x.playerStats.filter( y => y.user.name != user.name))
         this.printLobbyList();
     }
 }
