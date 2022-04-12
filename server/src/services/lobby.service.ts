@@ -8,7 +8,7 @@ const lobby_remover_interval_milliseconds = 15 * 1000
 
 export class lobbyService{
     static activeLobbies = new Array<Lobby>();
-    static debug = true;
+    static debug = false;
 
     static getLobbies(){
         return this.activeLobbies;

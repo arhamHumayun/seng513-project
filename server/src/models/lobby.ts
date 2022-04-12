@@ -1,4 +1,5 @@
 import User from "./user.js";
+import Code from "./code.js";
 import playerStat from "./playerStat.js";
 
 export default class Lobby {
@@ -8,7 +9,10 @@ export default class Lobby {
    public playerStats: Array<playerStat>;
    public lastActivity: Date;
    public isPrivate: boolean;
-   public gameRunning: boolean
+   public gameRunning: boolean;
+   public gameCode: Code;
+   public gameStart: Date;
+   public statsPushed: boolean;
 
    constructor(code: string, host: User, isPrivate: boolean = false) {
       this.code = code;
@@ -19,5 +23,8 @@ export default class Lobby {
       this.isPrivate = isPrivate;
       this.gameRunning = false;
       this.players.push(host);
+      this.gameCode = new Code("","");
+      this.gameStart = new Date("1900");
+      this.statsPushed = false;
    }
 }
