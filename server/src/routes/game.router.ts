@@ -55,7 +55,6 @@ gameRouter.post("/start/:id/:code/:codeId", async (req: Request, resp: Response)
     }catch(e){
         resp.status(500).send("Game start server error.");
     }
-
 });
 
 gameRouter.post("/updatePlayerState/:id/:code/:cpm/:correct/:incorrect", async (req: Request, resp: Response) => {
@@ -109,7 +108,7 @@ gameRouter.get("/playerStats/:code", async (req: Request, resp: Response) => {
         for (let i = 0; i < currentLobby.playerStats.length; i++) {
             results.push({
                 player_name: currentLobby.playerStats[i].user.name,
-                progress: currentLobby.playerStats[i].completionTimeSeconds / currentLobby.playerStats[i].completedCodeLines,
+                progress: (currentLobby.playerStats[i].completedCodeLines / currentLobby.playerStats[i].totalCodeLines) * 100,
                 current_cpm: currentLobby.playerStats[i].cpm.reduce((prev, curr) => prev + curr, 0) / (currentLobby.playerStats[i].cpm.length - 1)
             })
         }
@@ -139,27 +138,37 @@ gameRouter.get("/scoreboard/:code", async (req: Request, resp: Response) => {
     }else if(currentLobby.gameRunning){
         resp.status(400).send("Game still running.");
     }else{
+        let sortedPlayers = currentLobby.playerStats.sort((a, b) => {return a.completionTimeSeconds - b.completionTimeSeconds})
         for (let i = 0; i < currentLobby.playerStats.length; i++) {
+            let username = currentLobby.playerStats[i].user.name;
             results.push({
-                player_name: currentLobby.playerStats[i].user.name,
-                position: currentLobby.playerStats[i].currentPosition,
-                current_cpm: currentLobby.playerStats[i].cpm.reduce((prev, curr) => prev + curr, 0) / currentLobby.playerStats[i].cpm.length,
+                player_name: username,
+                position: sortedPlayers.findIndex(x => x.user.name == username) + 1,
+                current_cpm: currentLobby.playerStats[i].cpm.reduce((prev, curr) => prev + curr, 0) / (currentLobby.playerStats[i].cpm.length - 1)
             });
     
-            const currentDate = new Date();
-            const gameStat = new GameStat( 
-                currentLobby.playerStats[i].user.id!,
-                currentLobby.playerStats[i].cpm.reduce((prev, curr) => prev + curr, 0) / currentLobby.playerStats[i].cpm.length,
-                currentLobby.playerStats[i].correct, 
-                currentLobby.playerStats[i].incorrect,
-                currentDate);
-    
+            // checks in case scoreboard is called multiple times per user
             if(currentLobby.statsPushed == false){
-                const dbResult = await collections.gameStats?.insertOne(gameStat);
+                let statList = Array<GameStat>();
+                const currentDate = new Date();
+                currentLobby.playerStats.forEach(stat => {
+                    const gameStat = new GameStat( 
+                        stat.user.id!,
+                        stat.cpm.reduce((prev, curr) => prev + curr, 0) / stat.cpm.length,
+                        stat.correct, 
+                        stat.incorrect,
+                        currentDate);
+                    statList.push(gameStat);
+                });
+
+                const dbResult = await collections.gameStats?.insertMany(statList);
                 console.log(dbResult);
+
                 currentLobby.statsPushed = true;
                 lobbyService.updateLobby(currentLobby);
             }
+
+
         }
         resp.status(200).send(results);
     }
@@ -173,8 +182,8 @@ function secondsFromStart(lobby: Lobby){
 function checkAllPlayersDone(lobby: Lobby){
     const totalLines = lobby.playerStats[0].totalCodeLines;
     let notDone = lobby.playerStats.filter(x => x.completedCodeLines < totalLines);
-    console.log("Players not done:")
-    console.dir(notDone.length);
+    //console.log("Players not done:")
+    //console.dir(notDone.length);
     if(notDone.length > 0){
         return false;
     }else{
