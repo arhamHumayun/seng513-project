@@ -10,6 +10,17 @@ export interface IUser {
   password: string
 }
 
+export interface IPlayerStat {
+  completedCodeLines: number,
+  completionTimeSeconds: number,
+  correct: number,
+  cpm: number[],
+  incorrect: number,
+  progress: number,
+  totalLines: number,
+  user: IUser
+}
+
 export interface ILobbyResponse {
   code: string,
   gameCode: IGameCode,
@@ -18,7 +29,7 @@ export interface ILobbyResponse {
   host: IUser,
   isPrivate: boolean,
   lastActivity: string,
-  playerStats: string[],
+  playerStats: IPlayerStat[],
   players: IUser[],
   statsPushed: boolean
 }

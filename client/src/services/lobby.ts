@@ -35,7 +35,7 @@ export async function startGameService(id: string, lobbyCode: string, codeSnippe
 
 export async function updatePlayerState(id: string, lobbyCode: string, cpm: number, correct: number, incorrect: number) {
   try {
-    const response = await axios.post<ILobbyResponse>(`/game/start/${id}/${lobbyCode}/${cpm}/${correct}/${incorrect}`);
+    const response = await axios.post<ILobbyResponse>(`/game/updatePlayerState/${id}/${lobbyCode}/${cpm}/${correct}/${incorrect}`);
     return response.data;
   } catch (error) {
     console.log(error);
