@@ -40,12 +40,18 @@ const disabledText = {
 
 let correctKeyStrokes = 0;
 let incorrectKeyStrokes = 0;
+let startTime = 0;
+let endTime  = 0;
+let newLineStartTime = 0;
+// let newLineEndTime  = 0;
 
 function Lobby() {
   
   const [codeSnippet, setCodeSnippet] = useState("");
   const [userInput, setUserInput] = useState("");
   const [inputColor, setinputColor] = useState(validText);
+  // const [startTime, setStartTime] = useState<number>(0);
+  // const [endTime, setEndTime] = useState<number>(0);
   
   const user = localStorage.getItem("user"); // get user from browser storage
   let userObj: { name: string; _id: string; } | null = null;
@@ -59,6 +65,14 @@ function Lobby() {
     navigate(path);
   }
 
+  // do stuff when game starts
+  function setup() {
+    // add countdown timer?
+    setCodeSnippet("def multiply(a, b):\nreturn(a * b)");
+    startTime = new Date().getTime(); // start time
+    newLineStartTime = new Date().getTime(); // start time
+  }
+
   // compare input against code snippet as user types
   function handleTyping(userInput : string) {
     let length = userInput.length;
@@ -69,26 +83,36 @@ function Lobby() {
       correctKeyStrokes ++;
       
       if (length == codeSnippet.length) { // user finished
-        console.log(userObj!.name + ' finished typing')
         setinputColor(disabledText);
+        endTime = new Date().getTime(); // set end time
+        let totalTimeSeconds = (endTime - startTime) / 1000;
         let accuracy = (correctKeyStrokes / (correctKeyStrokes + incorrectKeyStrokes)) *100;
-        console.log('Accuracy: ' + accuracy + '%');
+        console.log(userObj!.name + ` finished typing in ${totalTimeSeconds} seconds with ${accuracy} accuracy!`)
+        handleCompletedLine();
+        // create player game stats obj
+        let CPM = codeSnippet.length / (totalTimeSeconds / 60);
+        let gameData = new GameData(userObj!.name, CPM, accuracy, 100);
+        console.log('GameData: ' + JSON.stringify(gameData));
+        // TODO: send entire game stats or average line stats for player on server?
       }
     }
     else { // text doesn't match
       setinputColor(wrongText); // change to red
       incorrectKeyStrokes ++;
-      console.log(incorrectKeyStrokes);
     }
   }
 
   // completion of each line
-  const handleEnterPress = () => {
-    let progress = (userInput.length / codeSnippet.length) * 100;
+  function handleCompletedLine() {
+    // get game data stats for line
+    let CPM = userInput.length / ((new Date().getTime() - newLineStartTime) / 60000);
+    let progress = ((userInput.length +1) / codeSnippet.length) * 100;
     let accuracy = (correctKeyStrokes / (correctKeyStrokes + incorrectKeyStrokes)) *100;
-    let gameData = new GameData(userObj!.name, 0, accuracy, progress);
-    console.log('GameData: ' + JSON.stringify(gameData));
-    // send data to server
+    let gameLineData = new GameData(userObj!.name, CPM, accuracy, progress);
+    console.log('Line Data: ' + JSON.stringify(gameLineData));
+    // reset timer
+    newLineStartTime = new Date().getTime();
+    // TODO: send data to server
   }
 
   // remove player
@@ -111,6 +135,7 @@ function Lobby() {
         <Col>
           <Row className="text-left">
             <Form.Label >Room Code: A3J6K8</Form.Label>
+            <Form.Label >StartTime: {startTime}</Form.Label>
           </Row>
           <Container>
             <Row>
@@ -154,16 +179,10 @@ function Lobby() {
             <Row className="text-left" style={border}>
               {/* <h5 className="display-linebreak">{codeSnippet}</h5> */}
               <textarea disabled value={codeSnippet}></textarea>
-              {/* <Form.Label >def countdown(n):</Form.Label>
-              <Form.Label>&emsp;if n less than 0:</Form.Label>
-              <Form.Label>&emsp;&emsp;print('Blastoff!')</Form.Label>
-              <Form.Label>&emsp;else:</Form.Label>
-              <Form.Label>&emsp;&emsp;print(n)</Form.Label>
-              <Form.Label>&emsp;&emsp;countdown(n - 1)</Form.Label> */}
             </Row>
             <br/>
             <Row>
-              <textarea style={inputColor}  placeholder="Type the above code snippet here when the race begins" onKeyPress={(e) => e.key === 'Enter' && handleEnterPress()} onChange={(event) => {
+              <textarea style={inputColor}  placeholder="Type the above code snippet here when the race begins" onKeyPress={(e) => e.key === 'Enter' && handleCompletedLine()} onChange={(event) => {
                 event.preventDefault();
                 setUserInput(event.target.value);
                 handleTyping(event.target.value);
@@ -181,7 +200,7 @@ function Lobby() {
             <Col>
               <Button variant="outline-dark" onClick={(event) => {
                 event.preventDefault();
-                setCodeSnippet("def multiply(a, b):\nreturn(a * b)");               
+                setup();           
               }}>Start</Button>
             </Col>
           </Row>
