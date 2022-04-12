@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { ObjectId } from "mongodb";
-import playerStat from "src/models/playerStat.js";
+import playerStat from "../models/playerStat.js";
 import Lobby from "../models/lobby.js";
 import User from "../models/user.js";
 import { collections } from "../services/database.service.js";
