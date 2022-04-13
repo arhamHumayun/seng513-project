@@ -1,5 +1,4 @@
 import React from "react";
-import { useState } from 'react';
 import NavBar from '../components/NavBarPartial';
 import computer from './../assets/computer.png';
 import { Form, Button, Container, Row, Col, Image } from "react-bootstrap";

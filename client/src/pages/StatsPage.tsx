@@ -1,5 +1,4 @@
 import React from "react";
-import { useState } from 'react';
 import NavBar from '../components/NavBarFull';
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import chart1 from './../assets/chart1.png';
@@ -24,22 +23,6 @@ const border = {
   borderColor : 'black',
   borderRadius : '10px'
 };
-
-const border2 = {
-	paddingLeft : '15px',
-	paddingRight : '15px',
-  border : '2px',
-  borderStyle : 'solid',
-  borderColor : 'black',
-};
-
-const line = {
-  border : '1px',
-  borderStyle : 'solid',
-  borderColor : 'black',
-  height : '2px',
-	background: 'black'
-}
 
 const titleSize = {
   fontSize : '28px'
