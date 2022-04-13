@@ -38,6 +38,10 @@ function SignUp() {
       alert("Please fill out all fields.");
       return;
     }
+    if (username.length > 10) {
+      alert("Username can be a max of 10 characters.");
+      return;
+    }
     if (!(password === confirmPassword)) {
       alert("The passwords don't match.");
       return;

@@ -1,28 +1,35 @@
 import React from "react";
-import { IUser } from "../interfaces/types";
+import { IPlayerStat } from "../interfaces/types";
 import { Form, Row, Col, ProgressBar } from "react-bootstrap";
+import '../index.css';
 
 type PlayerProps = {
-  players: IUser[];
+  playerStats: IPlayerStat[];
 };
 
 const noStyle = {
   listStyleType: 'none'
 }
 
+function avgCPM(cpmArr: number[]) {
+  const sum = cpmArr.reduce((a, b) => a + b, 0);
+  const avg = (sum / cpmArr.length) || 0;
+  return Math.round(avg);
+}
+
 const LobbyPlayers: React.FC<PlayerProps> = (props) => (
   <ul style={noStyle}>
-      {props.players.map(player => {
+      {props.playerStats.map(playerStats => {
         // return <li>{player.name}</li>;
-        return <li key={player.name}><Row>
+        return <li key={playerStats.user.name}><Row>
         <Col className="text-left" >
-          <Form.Label>{player.name}</Form.Label>
+          <Form.Label className="playerText">{playerStats.user.name}</Form.Label>
         </Col>
         <Col xs={8}>
-          <ProgressBar now={0} />
+          <ProgressBar now={playerStats.progress} />
         </Col>
         <Col>
-          <Form.Label>0 cpm</Form.Label>
+          <Form.Label className="playerText">{avgCPM(playerStats.cpm)} cpm</Form.Label>
         </Col>
       </Row></li>
       })}
