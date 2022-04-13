@@ -1,5 +1,4 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import SignIn from './pages/SignInPage';
 import SignUp from './pages/SignUpPage';
@@ -9,19 +8,11 @@ import Lobby from './pages/LobbyPage';
 import Profile from './pages/ProfilePage';
 import Stats from './pages/StatsPage';
 import Settings from './pages/SettingsPage';
-
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-import useMediaQuery from './useMediaQuery';
-import Media from 'react-media';
-
-
 function App() {
-  const matches = useMediaQuery(("min-width: 600px"));
-
   return (
     <div className="App">
-      {matches ?  "Hello" :
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -33,7 +24,7 @@ function App() {
           <Route path="/stats" element={<Stats />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
-      </BrowserRouter>}
+      </BrowserRouter>
     </div>
   );
 }
