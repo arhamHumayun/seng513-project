@@ -11,7 +11,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { convertCompilerOptionsFromJson } from "typescript";
 import { url } from "inspector";
-axios.defaults.baseURL = "http://localhost:3001"
+axios.defaults.baseURL = "https://seng513-project.herokuapp.com/"
 
 const center = {
   position: 'absolute' as 'absolute',

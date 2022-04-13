@@ -3,7 +3,7 @@ import NavBar from '../components/NavBarFull';
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-axios.defaults.baseURL = "http://localhost:3001"
+axios.defaults.baseURL = "https://seng513-project.herokuapp.com/"
 
 const center = {
   position: 'absolute' as 'absolute',

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { IUserResponse } from "../interfaces/types";
-axios.defaults.baseURL = "http://localhost:3001"
+axios.defaults.baseURL = "https://seng513-project.herokuapp.com/"
 
 export async function createUser(name: string, password: string) {
   try {
