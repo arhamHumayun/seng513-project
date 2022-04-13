@@ -1,7 +1,6 @@
 import axios from "axios";
 import { ILobbyResponse, IGameCode, IScoreboard } from "../interfaces/types";
-axios.defaults.baseURL = "http://localhost:3001"
-// import { ObjectId } from "mongodb";
+axios.defaults.baseURL = "https://seng513-project.herokuapp.com/"
 
 export async function getLobbyData(id: string) {
   try {
