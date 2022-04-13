@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import { ObjectId } from "mongodb";
+import playerStat from "../models/playerStat.js";
 import Lobby from "../models/lobby.js";
 import User from "../models/user.js";
 import { collections } from "../services/database.service.js";
@@ -29,6 +30,8 @@ lobbyRouter.get("/new/:type/:id", async (req: Request, resp: Response) => {
                 lobbyService.leaveLobbies(user);
                 generateNextCode();
                 let lobby = new Lobby(nextCode,user);
+                lobby.playerStats = new Array<playerStat>();
+                lobby.playerStats.push(new playerStat(user,0,0,0,0,0,0));
                 lobbyService.addLobby(lobby)
                 resp.status(200).send(nextCode);
             }
@@ -59,7 +62,9 @@ lobbyRouter.get("/join/:id/:code", async (req: Request, resp: Response) => {
         }else{
             lobbyService.leaveLobbies(user);
             // if found, push player to lobby list
+            let newStat = new playerStat(user, 0,0,0,0,0,0)
             filteredLobby.players.push(user);
+            filteredLobby.playerStats.push(newStat);
             lobbyService.updateLobby(filteredLobby);
             resp.status(200).send(filteredLobby);
         }

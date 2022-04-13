@@ -2,8 +2,8 @@ import React from "react";
 import { useState } from 'react';
 import NavBar from '../components/NavBarFull';
 import LobbyPlayers from "../components/lobbyPlayers";
-import { getLobbyData } from "../services/lobby";
-import { IUser } from "../interfaces/types";
+import { getLobbyData, getCodeSnippet, startGameService, updatePlayerState } from "../services/lobby";
+import { IPlayerStat } from "../interfaces/types";
 import { Form, Button, Container, Row, Col, ProgressBar } from "react-bootstrap";
 import '../index.css';
 import GameData from "../models/Game";
@@ -31,14 +31,17 @@ const border = {
 };
 
 const wrongText = {
-  backgroundColor: '#FDBBBC'
+  backgroundColor: '#FDBBBC',
+  height: '100px'
 };
 const validText = {
-  backgroundColor: '#C7FDBB'
+  backgroundColor: '#C7FDBB',
+  height: '100px'
 };
 const disabledText = {
   backgroundColor: '#D3D3D3',
   pointerEvents : "none",
+  height: '100px'
 };
 
 let correctKeyStrokes = 0;
@@ -46,14 +49,14 @@ let incorrectKeyStrokes = 0;
 let startTime = 0;
 let endTime  = 0;
 let newLineStartTime = 0;
-// let newLineEndTime  = 0;
+let pollingRate = 5000;
 
 function Lobby() {
   
   const [codeSnippet, setCodeSnippet] = useState("");
   const [userInput, setUserInput] = useState("");
   const [inputColor, setinputColor] = useState(validText);
-  const [players, setPlayers] = useState<IUser[]>([]);
+  const [players, setPlayers] = useState<IPlayerStat[]>([]);
   const [lobbyCode, setLobbyCode] = useState<string>("");
   
   const user = localStorage.getItem("user"); // get user from browser storage
@@ -69,25 +72,47 @@ function Lobby() {
   }
 
   // execute when joining lobby -> adds players & code to UI 
-  async function joinedLobby() {
+  async function lobbyPolling() {
     let res = await getLobbyData(userObj!._id);
     console.log(res);
     setLobbyCode(res.code);
     // populate UI with players in lobby
     let players = [];
-    for (var i = 0; i < res.players.length; i++) {
-      if (res.players[i].name == userObj!.name) { // mark user's name with '(you)' to distinguish them
-        res.players[i].name = res.players[i].name + ' (you)';
+    for (var i = 0; i < res.playerStats.length; i++) {
+      if (res.playerStats[i].user.name == userObj!.name) { // mark user's name with '(you)' to distinguish them
+        res.playerStats[i].user.name = res.playerStats[i].user.name + ' (you)';
       }
-      players.push(res.players[i]);
+      players.push(res.playerStats[i]);
     }
     setPlayers(players); // update players state
+
+    // poll lobby for new players until game starts
+    if (res.gameRunning == false) {
+      setTimeout(lobbyPolling, pollingRate); // every 5 seconds
+    }
+    else { // game started, switch to polling game data
+      setCodeSnippet(res.gameCode.code);
+      setTimeout(gamePolling, pollingRate); // every 5 seconds
+    }
   }
 
-  // do stuff when game starts
-  function startGame() {
+  // get live stats during game play
+  async function gamePolling() {
+    console.log('Polling for game data');
+    let lobby_res = await getLobbyData(userObj!._id);
+    console.log(lobby_res);
+    // setCodeSnippet(lobby_res.gameCode.code);
+    setPlayers(lobby_res.playerStats);
+
+    setTimeout(gamePolling, 2000);
+  }
+
+  // when host starts the game
+  async function startGame() {
     // add countdown timer?
-    setCodeSnippet("def multiply(a, b):\nreturn(a * b)");
+    let code_res = await getCodeSnippet();
+    console.log(code_res);
+    let game_res = await startGameService(userObj!._id, lobbyCode, code_res._id);
     startTime = new Date().getTime(); // start time
     newLineStartTime = new Date().getTime(); // start time
   }
@@ -112,7 +137,7 @@ function Lobby() {
         let CPM = codeSnippet.length / (totalTimeSeconds / 60);
         let gameData = new GameData(userObj!.name, CPM, accuracy, 100);
         console.log('GameData: ' + JSON.stringify(gameData));
-        // TODO: send entire game stats or average line stats for player on server?
+        // TODO: notify server that player is finished
       }
     }
     else { // text doesn't match
@@ -121,17 +146,26 @@ function Lobby() {
     }
   }
 
-  // completion of each line
-  function handleCompletedLine() {
-    // get game data stats for line
-    let CPM = userInput.length / ((new Date().getTime() - newLineStartTime) / 60000);
-    let progress = ((userInput.length +1) / codeSnippet.length) * 100;
-    let accuracy = (correctKeyStrokes / (correctKeyStrokes + incorrectKeyStrokes)) *100;
-    let gameLineData = new GameData(userObj!.name, CPM, accuracy, progress);
-    console.log('Line Data: ' + JSON.stringify(gameLineData));
-    // reset timer
-    newLineStartTime = new Date().getTime();
-    // TODO: send data to server
+  // completion of each line (user hits 'enter' key)
+  async function handleCompletedLine() {
+    // let length = userInput.length;
+    // let subStr = codeSnippet.substring(0, length);
+    // // check if userInput is correct
+    // if (userInput == subStr) {
+      // get game data stats for line
+      let CPM = userInput.length / ((new Date().getTime() - newLineStartTime) / 60000);
+      let progress = ((userInput.length +1) / codeSnippet.length) * 100;
+      let accuracy = (correctKeyStrokes / (correctKeyStrokes + incorrectKeyStrokes)) *100;
+      let gameLineData = new GameData(userObj!.name, CPM, accuracy, progress);
+      console.log('Line Data: ' + JSON.stringify(gameLineData));
+      // reset timer
+      newLineStartTime = new Date().getTime();
+      // send data to server
+      let res = await updatePlayerState(userObj!._id, lobbyCode, CPM, correctKeyStrokes, incorrectKeyStrokes);
+    // }
+    // else {
+    //   return;
+    // }
   }
 
   // remove player
@@ -148,7 +182,7 @@ function Lobby() {
   }
 
   return (
-    <div onLoad= {() => joinedLobby()}>
+    <div onLoad= {() => lobbyPolling()}>
       <NavBar/>       
       <Container fluid style={center}>
         <Col>
@@ -156,40 +190,7 @@ function Lobby() {
             <Form.Label >Room Code: {lobbyCode}</Form.Label>
           </Row>
           <Container>
-            <LobbyPlayers players={players}/>
-            {/* <Row>
-              <Col className="text-left">
-                <Form.Label>Racer 1 (you)</Form.Label>
-              </Col>
-              <Col xs={8}>
-                <ProgressBar now={55} />
-              </Col>
-              <Col>
-                <Form.Label>48 wpm</Form.Label>
-              </Col>
-            </Row>
-            <Row>
-              <Col className="text-left">
-                <Form.Label>Racer 2</Form.Label>
-              </Col>
-              <Col xs={8}>
-                <ProgressBar now={80} />
-              </Col>
-              <Col>
-                <Form.Label>57 wpm</Form.Label>
-              </Col>
-            </Row>
-            <Row>
-              <Col className="text-left">
-                <Form.Label>Racer 3</Form.Label>
-              </Col>
-              <Col xs={8}>
-                <ProgressBar now={68} />
-              </Col>
-              <Col>
-                <Form.Label>53 wpm</Form.Label>
-              </Col>
-            </Row> */}
+            <LobbyPlayers playerStats={players}/>
           </Container>
           <Row>
             <Form.Label>Code Snippet</Form.Label>
@@ -197,7 +198,7 @@ function Lobby() {
           <Container>
             <Row className="text-left" style={border}>
               {/* <h5 className="display-linebreak">{codeSnippet}</h5> */}
-              <textarea disabled value={codeSnippet}></textarea>
+              <textarea disabled style={{height: '400px'}} value={codeSnippet}></textarea>
             </Row>
             <br/>
             <Row>

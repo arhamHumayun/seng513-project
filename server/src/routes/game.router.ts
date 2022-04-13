@@ -83,6 +83,7 @@ gameRouter.post("/updatePlayerState/:id/:code/:cpm/:correct/:incorrect", async (
             currStat[0].completionTimeSeconds = secondsFromStart(currentLobby);
             currStat[0].correct += correct;
             currStat[0].incorrect += incorrect;
+            currStat[0].progress = (currStat[0].completedCodeLines / currStat[0].totalCodeLines) * 100;
             let allDone = checkAllPlayersDone(currentLobby);
             if(allDone){
                 console.log("GAME COMPLETE");
@@ -108,7 +109,7 @@ gameRouter.get("/playerStats/:code", async (req: Request, resp: Response) => {
         for (let i = 0; i < currentLobby.playerStats.length; i++) {
             results.push({
                 player_name: currentLobby.playerStats[i].user.name,
-                progress: (currentLobby.playerStats[i].completedCodeLines / currentLobby.playerStats[i].totalCodeLines) * 100,
+                progress: currentLobby.playerStats[i].progress,
                 current_cpm: currentLobby.playerStats[i].cpm.reduce((prev, curr) => prev + curr, 0) / (currentLobby.playerStats[i].cpm.length - 1)
             })
         }
