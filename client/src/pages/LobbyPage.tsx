@@ -2,15 +2,13 @@ import React from "react";
 import { useState } from 'react';
 import NavBar from '../components/NavBarFull';
 import LobbyPlayers from "../components/lobbyPlayers";
-import { getLobbyData, getCodeSnippet, startGameService, updatePlayerState } from "../services/lobby";
-import { IPlayerStat } from "../interfaces/types";
+import { getLobbyData, getCodeSnippet, startGameService, updatePlayerState, getScoreboard, writeScoreboard } from "../services/lobby";
+import { IPlayerStat, IScoreboard } from "../interfaces/types";
 import { Form, Button, Container, Row, Col, ProgressBar } from "react-bootstrap";
 import '../index.css';
 import GameData from "../models/Game";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { convertCompilerOptionsFromJson } from "typescript";
-import { url } from "inspector";
 axios.defaults.baseURL = "https://seng513-project.herokuapp.com/"
 
 const center = {
@@ -48,7 +46,7 @@ let incorrectKeyStrokes = 0;
 let startTime = 0;
 let endTime  = 0;
 let newLineStartTime = 0;
-let pollingRate = 5000;
+let pollingRate = 2000;
 
 function Lobby() {
   
@@ -57,6 +55,7 @@ function Lobby() {
   const [inputColor, setinputColor] = useState(validText);
   const [players, setPlayers] = useState<IPlayerStat[]>([]);
   const [lobbyCode, setLobbyCode] = useState<string>("");
+  const [title, setTitle] = useState("Code Snippet");
   
   const user = localStorage.getItem("user"); // get user from browser storage
   let userObj: { name: string; _id: string; } | null = null;
@@ -108,8 +107,17 @@ function Lobby() {
       players.push(res.playerStats[i]);
     }
     setPlayers(players); // update players state
-
-    setTimeout(gamePolling, 2000);
+    // continue polling while game is running
+    if (res.gameRunning == true) {
+      setTimeout(gamePolling, pollingRate);
+    }
+    else { // game is over, display scoreboard
+      let scoreboard_res = await getScoreboard(res.code);
+      console.log(scoreboard_res);
+      let scoreboard = await writeScoreboard(scoreboard_res);
+      setCodeSnippet(scoreboard); // display 
+      setTitle("Results")
+    }
   }
 
   // when host starts the game
@@ -136,13 +144,10 @@ function Lobby() {
         endTime = new Date().getTime(); // set end time
         let totalTimeSeconds = (endTime - startTime) / 1000;
         let accuracy = (correctKeyStrokes / (correctKeyStrokes + incorrectKeyStrokes)) *100;
-        console.log(userObj!.name + ` finished typing in ${totalTimeSeconds} seconds with ${accuracy} accuracy!`)
         handleCompletedLine();
         // create player game stats obj
         let CPM = codeSnippet.length / (totalTimeSeconds / 60);
         let gameData = new GameData(userObj!.name, CPM, accuracy, 100);
-        console.log('GameData: ' + JSON.stringify(gameData));
-        // TODO: notify server that player is finished
       }
     }
     else { // text doesn't match
@@ -153,11 +158,6 @@ function Lobby() {
 
   // completion of each line (user hits 'enter' key)
   async function handleCompletedLine() {
-    // let length = userInput.length;
-    // let subStr = codeSnippet.substring(0, length);
-    // // check if userInput is correct
-    // if (userInput == subStr) {
-      // get game data stats for line
       let CPM = userInput.length / ((new Date().getTime() - newLineStartTime) / 60000);
       let progress = ((userInput.length +1) / codeSnippet.length) * 100;
       let accuracy = (correctKeyStrokes / (correctKeyStrokes + incorrectKeyStrokes)) *100;
@@ -167,10 +167,6 @@ function Lobby() {
       newLineStartTime = new Date().getTime();
       // send data to server
       let res = await updatePlayerState(userObj!._id, lobbyCode, CPM, correctKeyStrokes, incorrectKeyStrokes);
-    // }
-    // else {
-    //   return;
-    // }
   }
 
   // remove player
@@ -203,7 +199,7 @@ function Lobby() {
             <LobbyPlayers playerStats={players}/>
           </Container>
           <Row>
-            <Form.Label className="title">Code Snippet</Form.Label>
+            <Form.Label className="title">{title}</Form.Label>
           </Row>
           <Container>
             <Row>

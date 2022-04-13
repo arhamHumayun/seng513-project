@@ -39,3 +39,9 @@ export interface IGameCode {
   language: string,
   code: string
 }
+
+export interface IScoreboard {
+  current_cpm: number,
+  player_name: string,
+  position: number,
+}
