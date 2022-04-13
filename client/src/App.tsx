@@ -12,21 +12,28 @@ import Settings from './pages/SettingsPage';
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
+import useMediaQuery from './useMediaQuery';
+import Media from 'react-media';
+
+
 function App() {
+  const matches = useMediaQuery(("min-width: 600px"));
+
   return (
     <div className="App">
+      {matches ?  "Hello" :
       <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/newgame" element={<NewGame />} />
-        <Route path="/lobby/:type/:code" element={<Lobby />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/stats" element={<Stats />} />
-        <Route path="/settings" element={<Settings />} />
-      </Routes>
-      </BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/newgame" element={<NewGame />} />
+          <Route path="/lobby/:type/:code" element={<Lobby />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/stats" element={<Stats />} />
+          <Route path="/settings" element={<Settings />} />
+        </Routes>
+      </BrowserRouter>}
     </div>
   );
 }
