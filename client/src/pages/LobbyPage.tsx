@@ -10,6 +10,7 @@ import GameData from "../models/Game";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { convertCompilerOptionsFromJson } from "typescript";
+import { url } from "inspector";
 axios.defaults.baseURL = "http://localhost:3001"
 
 const center = {
@@ -27,21 +28,19 @@ const border = {
   border : '2px',
   borderStyle : 'solid',
   borderColor : 'black',
-  borderRadius : '10px'
+  borderRadius : '10px',
+  backgroundColor : 'black'
 };
 
 const wrongText = {
   backgroundColor: '#FDBBBC',
-  height: '100px'
 };
 const validText = {
   backgroundColor: '#C7FDBB',
-  height: '100px'
 };
 const disabledText = {
   backgroundColor: '#D3D3D3',
   pointerEvents : "none",
-  height: '100px'
 };
 
 let correctKeyStrokes = 0;
@@ -99,10 +98,16 @@ function Lobby() {
   // get live stats during game play
   async function gamePolling() {
     console.log('Polling for game data');
-    let lobby_res = await getLobbyData(userObj!._id);
-    console.log(lobby_res);
-    // setCodeSnippet(lobby_res.gameCode.code);
-    setPlayers(lobby_res.playerStats);
+    let res = await getLobbyData(userObj!._id);
+    console.log(res);
+    let players = [];
+    for (var i = 0; i < res.playerStats.length; i++) {
+      if (res.playerStats[i].user.name == userObj!.name) { // mark user's name with '(you)' to distinguish them
+        res.playerStats[i].user.name = res.playerStats[i].user.name + ' (you)';
+      }
+      players.push(res.playerStats[i]);
+    }
+    setPlayers(players); // update players state
 
     setTimeout(gamePolling, 2000);
   }
@@ -182,27 +187,35 @@ function Lobby() {
   }
 
   return (
-    <div onLoad= {() => lobbyPolling()}>
+    <div  onLoad= {() => lobbyPolling()}>
       <NavBar/>       
-      <Container fluid style={center}>
+      <Container fluid className="consolas" style={center}>
         <Col>
           <Row className="text-left">
-            <Form.Label >Room Code: {lobbyCode}</Form.Label>
+            <div >
+              <Form.Label className="roomCode">Room Code: {lobbyCode}</Form.Label>
+            </div>
+          </Row>
+          <Row>
+            <Form.Label className="title">Racers</Form.Label>
           </Row>
           <Container>
             <LobbyPlayers playerStats={players}/>
           </Container>
           <Row>
-            <Form.Label>Code Snippet</Form.Label>
+            <Form.Label className="title">Code Snippet</Form.Label>
           </Row>
           <Container>
-            <Row className="text-left" style={border}>
-              {/* <h5 className="display-linebreak">{codeSnippet}</h5> */}
-              <textarea disabled style={{height: '400px'}} value={codeSnippet}></textarea>
+            <Row>
+              <div className="terminalParent">
+                <div className="terminalWindow">
+                  <pre><code className="terminalTextGreen">{codeSnippet}</code></pre>
+                </div>
+              </div>
             </Row>
             <br/>
             <Row>
-              <textarea style={inputColor}  placeholder="Type the above code snippet here when the race begins" onKeyPress={(e) => e.key === 'Enter' && handleCompletedLine()} onChange={(event) => {
+              <textarea className="inputText" style={inputColor}  placeholder="Type the above code snippet here when the race begins" onKeyPress={(e) => e.key === 'Enter' && handleCompletedLine()} onChange={(event) => {
                 event.preventDefault();
                 setUserInput(event.target.value);
                 handleTyping(event.target.value);

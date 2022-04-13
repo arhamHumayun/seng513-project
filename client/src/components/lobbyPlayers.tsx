@@ -1,6 +1,7 @@
 import React from "react";
 import { IPlayerStat } from "../interfaces/types";
 import { Form, Row, Col, ProgressBar } from "react-bootstrap";
+import '../index.css';
 
 type PlayerProps = {
   playerStats: IPlayerStat[];
@@ -22,13 +23,13 @@ const LobbyPlayers: React.FC<PlayerProps> = (props) => (
         // return <li>{player.name}</li>;
         return <li key={playerStats.user.name}><Row>
         <Col className="text-left" >
-          <Form.Label>{playerStats.user.name}</Form.Label>
+          <Form.Label className="playerText">{playerStats.user.name}</Form.Label>
         </Col>
         <Col xs={8}>
           <ProgressBar now={playerStats.progress} />
         </Col>
         <Col>
-          <Form.Label>{avgCPM(playerStats.cpm)} cpm</Form.Label>
+          <Form.Label className="playerText">{avgCPM(playerStats.cpm)} cpm</Form.Label>
         </Col>
       </Row></li>
       })}
